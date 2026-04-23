@@ -1,0 +1,6 @@
+name = "mute-glitter-260c"
+main = "worker.js"
+compatibility_date = "2026-04-23"
+
+[assets]
+directory = "./Проект"
