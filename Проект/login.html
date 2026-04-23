@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Брокер — Вход и регистрация</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#08080f;--surface:#111119;--surface2:#1a1a26;--accent:#7c6fff;--gold:#f0c040;--gold2:#ffd760;--text:#eeeef5;--muted:#72728a;--border:rgba(255,255,255,0.08);--green:#3ecf8e;--red:#ff5e5e;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:"Geologica",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background-image:radial-gradient(ellipse at 30% 30%,rgba(124,111,255,0.07) 0%,transparent 55%),radial-gradient(ellipse at 70% 70%,rgba(240,192,64,0.04) 0%,transparent 50%);}
+nav{position:fixed;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);background:rgba(8,8,15,0.9);backdrop-filter:blur(16px);z-index:100;}
+.nav-logo{font-family:"Unbounded",sans-serif;font-size:16px;font-weight:700;background:linear-gradient(135deg,#fff 30%,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.box{width:100%;max-width:440px;margin-top:54px;}
+.tabs{display:flex;background:var(--surface2);border-radius:14px;padding:4px;gap:4px;margin-bottom:28px;}
+.tab{flex:1;padding:11px;border-radius:10px;text-align:center;font-size:13.5px;font-weight:500;cursor:pointer;transition:all .25s;color:var(--muted);border:none;background:transparent;font-family:"Geologica",sans-serif;}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 10px rgba(0,0,0,.3);}
+.form{display:none;animation:up .3s ease;}
+.form.active{display:block;}
+.form-title{font-family:"Unbounded",sans-serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.5;}
+.role-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;font-size:13px;font-weight:600;margin-bottom:20px;}
+.role-badge.client{background:rgba(124,111,255,.12);border:1px solid rgba(124,111,255,.25);color:var(--accent);}
+.role-badge.specialist{background:rgba(240,192,64,.1);border:1px solid rgba(240,192,64,.25);color:var(--gold);}
+.role-badge a{font-size:11.5px;color:var(--muted);text-decoration:none;margin-left:4px;cursor:pointer;}
+.role-badge a:hover{color:var(--text);}
+.steps{display:flex;align-items:center;gap:7px;margin-bottom:22px;}
+.sd{width:7px;height:7px;border-radius:50%;background:var(--border);transition:all .3s;}
+.sd.active{background:var(--accent);transform:scale(1.3);}
+.sd.done{background:var(--green);}
+.sd.spec-active{background:var(--gold);transform:scale(1.3);}
+.sl{flex:1;height:1px;background:var(--border);transition:background .3s;}
+.sl.done{background:var(--green);}
+.ig{margin-bottom:14px;}
+.il{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block;}
+.iw{position:relative;}
+.fi{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px 15px;color:var(--text);font-family:"Geologica",sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.fi:focus{border-color:var(--accent);}
+.fi.spec:focus{border-color:var(--gold);}
+.fi.err{border-color:var(--red);animation:shake .3s ease;}
+.fi::placeholder{color:var(--muted);}
+.eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;cursor:pointer;}
+.hint{font-size:11px;color:var(--muted);margin-top:4px;}
+.phone-row{display:flex;gap:8px;}
+.phone-code{background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;padding:12px;color:var(--text);font-family:"Geologica",sans-serif;font-size:14px;outline:none;width:70px;text-align:center;font-weight:600;}
+.pbar{height:3px;border-radius:2px;margin-top:5px;transition:all .3s;width:0;}
+.otp-row{display:flex;gap:9px;justify-content:center;margin-bottom:16px;}
+.otp{width:50px;height:56px;background:var(--surface2);border:1.5px solid var(--border);border-radius:12px;text-align:center;font-size:22px;font-weight:700;color:var(--text);font-family:"Unbounded",sans-serif;outline:none;transition:all .2s;}
+.otp:focus{border-color:var(--accent);background:rgba(124,111,255,.06);}
+.sbtn{width:100%;background:linear-gradient(135deg,var(--accent),#5a52cc);border:none;border-radius:13px;padding:15px;font-family:"Unbounded",sans-serif;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;transition:all .25s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.sbtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,111,255,.35);}
+.sbtn:disabled{opacity:.5;cursor:not-allowed;}
+.sbtn.spec-btn{background:linear-gradient(135deg,var(--gold),#d4a017);color:#1a1200;}
+.sbtn.spec-btn:hover:not(:disabled){box-shadow:0 8px 28px rgba(240,192,64,.35);}
+.bbtn{background:var(--surface2);border:1.5px solid var(--border);border-radius:13px;padding:15px 16px;color:var(--muted);cursor:pointer;font-family:"Geologica",sans-serif;font-size:13px;flex-shrink:0;transition:all .2s;}
+.bbtn:hover{border-color:var(--accent);color:var(--text);}
+.brow{display:flex;gap:9px;}
+.emsg{background:rgba(255,94,94,.1);border:1px solid rgba(255,94,94,.25);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;}
+.emsg.show{display:block;animation:up .2s ease;}
+.success{text-align:center;padding:16px 0;display:none;animation:up .4s ease;}
+.sicon{width:68px;height:68px;border-radius:50%;background:rgba(62,207,142,.12);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 18px;}
+.stitle{font-family:"Unbounded",sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+.ssub{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:24px;}
+.gobtn{background:linear-gradient(135deg,var(--accent),#5a52cc);border:none;border-radius:13px;padding:14px 30px;font-family:"Unbounded",sans-serif;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;transition:all .25s;}
+.gobtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(124,111,255,.35);}
+.sw{text-align:center;margin-top:18px;font-size:13px;color:var(--muted);}
+.sw a{color:var(--accent);text-decoration:none;cursor:pointer;font-weight:500;}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:rotate .6s linear infinite;display:none;}
+.spin.show{display:block;}
+.spec-chip{background:var(--surface2);border:1.5px solid var(--border);border-radius:20px;padding:8px 14px;font-size:12.5px;cursor:pointer;transition:all .2s;color:var(--muted);}
+.spec-chip:hover{border-color:rgba(240,192,64,.4);}
+.spec-chip.sel{border-color:var(--gold);background:rgba(240,192,64,.08);color:var(--text);}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes rotate{to{transform:rotate(360deg)}}
+@media(max-width:600px){
+  body{padding:10px;padding-top:64px;justify-content:flex-start;}
+  .box{max-width:100%;}
+  .fi{font-size:14px;padding:11px 13px;}
+  .sbtn{padding:14px;font-size:12px;}
+  .bbtn{padding:14px 12px;font-size:12px;}
+  .otp-row{gap:7px;}
+  .otp{width:44px;height:50px;font-size:20px;border-radius:10px;}
+  .brow{gap:8px;}
+}
+@media(max-width:400px){.otp{width:38px;height:44px;font-size:18px;}}
+</style>
+</head>
+<body>
+<nav><a href="index.html" class="nav-logo">БРОКЕР</a></nav>
+
+<div class="box">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('login')">Войти</button>
+    <button class="tab" onclick="switchTab('register')">Регистрация</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="fLogin" class="form active">
+    <div class="form-title">Добро пожаловать</div>
+    <div class="form-sub">Войдите в свой аккаунт</div>
+    <div class="emsg" id="loginErr"></div>
+    <div class="ig">
+      <label class="il">Email</label>
+      <input class="fi" id="lEmail" placeholder="email@mail.ru" type="email">
+    </div>
+    <div class="ig">
+      <label class="il">Пароль</label>
+      <div class="iw">
+        <input class="fi" id="lPass" placeholder="Ваш пароль" type="password">
+        <span class="eye" onclick="togglePass('lPass')">👁</span>
+      </div>
+      <div style="text-align:right;margin-top:4px;"><a href="#" style="color:var(--accent);text-decoration:none;font-size:12px;">Забыли пароль?</a></div>
+    </div>
+    <button class="sbtn" id="loginBtn" onclick="doLogin()">
+      <div class="spin" id="lSpin"></div>
+      <span id="lBtnTxt">Войти →</span>
+    </button>
+    <div class="sw">Нет аккаунта? <a onclick="switchTab('register')">Зарегистрируйтесь</a></div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="fReg" class="form">
+
+    <!-- КЛИЕНТ ШАГ 1: данные -->
+    <div id="crs1" style="display:none">
+      <div class="role-badge client">👤 Заказчик <a onclick="goBack()">← сменить роль</a></div>
+      <div class="form-title">Быстрая регистрация</div>
+      <div class="form-sub">Займёт меньше минуты</div>
+      <div class="steps">
+        <div class="sd active"></div><div class="sl"></div>
+        <div class="sd"></div><div class="sl"></div>
+        <div class="sd"></div>
+      </div>
+      <div class="emsg" id="crs1Err"></div>
+      <div class="ig"><label class="il">Ваше имя</label><input class="fi" id="crName" placeholder="Иван Иванов" type="text"></div>
+      <div class="ig">
+        <label class="il">Телефон</label>
+        <div class="phone-row">
+          <input class="phone-code" value="+7" readonly>
+          <input class="fi" id="crPhone" placeholder="900 000 00 00" type="tel" style="flex:1" oninput="formatPhone(this)">
+        </div>
+      </div>
+      <div class="ig"><label class="il">Email</label><input class="fi" id="crEmail" placeholder="email@mail.ru" type="email"></div>
+      <button class="sbtn" onclick="crGoStep(2)">Продолжить →</button>
+      <div class="sw">Уже есть аккаунт? <a onclick="switchTab('login')">Войти</a></div>
+    </div>
+
+    <!-- КЛИЕНТ ШАГ 2: пароль -->
+    <div id="crs2" style="display:none">
+      <div class="role-badge client">👤 Заказчик <a onclick="goBack()">← сменить роль</a></div>
+      <div class="form-title">Придумайте пароль</div>
+      <div class="form-sub">Минимум 8 символов</div>
+      <div class="steps">
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd active"></div><div class="sl"></div>
+        <div class="sd"></div>
+      </div>
+      <div class="emsg" id="crs2Err"></div>
+      <div class="ig">
+        <label class="il">Пароль</label>
+        <div class="iw">
+          <input class="fi" id="crPass" placeholder="Минимум 8 символов" type="password" oninput="checkStr('crPass','pbar2','pHint2')">
+          <span class="eye" onclick="togglePass('crPass')">👁</span>
+        </div>
+        <div class="pbar" id="pbar2"></div>
+        <div class="hint" id="pHint2"></div>
+      </div>
+      <div class="ig">
+        <label class="il">Повторите пароль</label>
+        <div class="iw">
+          <input class="fi" id="crPass2" placeholder="Повторите пароль" type="password">
+          <span class="eye" onclick="togglePass('crPass2')">👁</span>
+        </div>
+      </div>
+      <div class="brow">
+        <button class="bbtn" onclick="crGoStep(1)">← Назад</button>
+        <button class="sbtn" onclick="crGoStep(3)" style="margin-top:0">Продолжить →</button>
+      </div>
+    </div>
+
+    <!-- КЛИЕНТ ШАГ 3: OTP -->
+    <div id="crs3" style="display:none">
+      <div class="role-badge client">👤 Заказчик <a onclick="goBack()">← сменить роль</a></div>
+      <div class="form-title">Подтвердите email</div>
+      <div class="form-sub">Код отправлен на <strong id="crEmailShow" style="color:var(--text)"></strong></div>
+      <div class="steps">
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd active"></div>
+      </div>
+      <div class="emsg" id="crOtpErr"></div>
+      <div class="otp-row">
+        <input class="otp" id="co1" maxlength="1" type="tel" oninput="om(this,'co2')" onkeydown="ob(event,this,null)">
+        <input class="otp" id="co2" maxlength="1" type="tel" oninput="om(this,'co3')" onkeydown="ob(event,this,'co1')">
+        <input class="otp" id="co3" maxlength="1" type="tel" oninput="om(this,'co4')" onkeydown="ob(event,this,'co2')">
+        <input class="otp" id="co4" maxlength="1" type="tel" oninput="om(this,'co5')" onkeydown="ob(event,this,'co3')">
+        <input class="otp" id="co5" maxlength="1" type="tel" oninput="om(this,'co6')" onkeydown="ob(event,this,'co4')">
+        <input class="otp" id="co6" maxlength="1" type="tel" oninput="omLast(this,'client')" onkeydown="ob(event,this,'co5')">
+      </div>
+      <div style="text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:14px;">
+        Не пришло? <a href="#" style="color:var(--accent);text-decoration:none" onclick="resendCode()">Отправить снова</a>
+        <span id="resendInfo"></span>
+      </div>
+      <div class="brow">
+        <button class="bbtn" onclick="crGoStep(2)">← Назад</button>
+        <button class="sbtn" id="crRegBtn" onclick="doClientReg()" style="margin-top:0">
+          <div class="spin" id="crSpin"></div>
+          <span id="crBtnTxt">Создать аккаунт →</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ИСПОЛНИТЕЛЬ ШАГ 1: данные -->
+    <div id="srs1" style="display:none">
+      <div class="role-badge specialist">👨‍💼 Исполнитель <a onclick="goBack()">← сменить роль</a></div>
+      <div class="form-title">Регистрация исполнителя</div>
+      <div class="form-sub">Укажите контактную информацию</div>
+      <div class="steps">
+        <div class="sd spec-active"></div><div class="sl"></div>
+        <div class="sd"></div><div class="sl"></div>
+        <div class="sd"></div><div class="sl"></div>
+        <div class="sd"></div>
+      </div>
+      <div class="emsg" id="srs1Err"></div>
+      <div class="ig"><label class="il">ФИО</label><input class="fi spec" id="srName" placeholder="Иванов Алексей Иванович" type="text"></div>
+      <div class="ig">
+        <label class="il">Телефон</label>
+        <div class="phone-row">
+          <input class="phone-code" value="+7" readonly>
+          <input class="fi spec" id="srPhone" placeholder="900 000 00 00" type="tel" style="flex:1" oninput="formatPhone(this)">
+        </div>
+      </div>
+      <div class="ig"><label class="il">Email</label><input class="fi spec" id="srEmail" placeholder="email@mail.ru" type="email"><div class="hint">Для входа и восстановления доступа</div></div>
+      <div class="ig">
+        <label class="il">Telegram <span style="color:var(--muted);font-weight:400;text-transform:none;">— для уведомлений</span></label>
+        <div class="iw">
+          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;">✈️</span>
+          <input class="fi spec" id="srTelegram" placeholder="@username" type="text" style="padding-left:36px;">
+        </div>
+        <div class="hint">Необязательно · Будем присылать уведомления о заявках</div>
+      </div>
+      <div class="brow">
+        <button class="bbtn" onclick="goBack()">← Назад</button>
+        <button class="sbtn spec-btn" onclick="srGoStep(2)" style="margin-top:0">Продолжить →</button>
+      </div>
+      <div class="sw">Уже есть аккаунт? <a onclick="switchTab('login')">Войти</a></div>
+    </div>
+
+    <!-- ИСПОЛНИТЕЛЬ ШАГ 2: пароль -->
+    <div id="srs2" style="display:none">
+      <div class="role-badge specialist">👨‍💼 Исполнитель <a onclick="goBack()">← сменить роль</a></div>
+      <div class="form-title">Придумайте пароль</div>
+      <div class="form-sub">Минимум 8 символов</div>
+      <div class="steps">
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd spec-active"></div><div class="sl"></div>
+        <div class="sd"></div><div class="sl"></div>
+        <div class="sd"></div>
+      </div>
+      <div class="emsg" id="srs2Err"></div>
+      <div class="ig">
+        <label class="il">Пароль</label>
+        <div class="iw">
+          <input class="fi spec" id="srPass" placeholder="Минимум 8 символов" type="password" oninput="checkStr('srPass','pbar3','pHint3')">
+          <span class="eye" onclick="togglePass('srPass')">👁</span>
+        </div>
+        <div class="pbar" id="pbar3"></div>
+        <div class="hint" id="pHint3"></div>
+      </div>
+      <div class="ig">
+        <label class="il">Повторите пароль</label>
+        <div class="iw">
+          <input class="fi spec" id="srPass2" placeholder="Повторите пароль" type="password">
+          <span class="eye" onclick="togglePass('srPass2')">👁</span>
+        </div>
+      </div>
+      <div class="brow">
+        <button class="bbtn" onclick="srGoStep(1)">← Назад</button>
+        <button class="sbtn spec-btn" onclick="srGoStep(3)" style="margin-top:0">Продолжить →</button>
+      </div>
+    </div>
+
+    <!-- ИСПОЛНИТЕЛЬ ШАГ 3: специализация -->
+    <div id="srs3" style="display:none">
+      <div class="role-badge specialist">👨‍💼 Исполнитель <a onclick="goBack()">← сменить роль</a></div>
+      <div class="form-title">Специализация</div>
+      <div class="form-sub">Выберите направления работы</div>
+      <div class="steps">
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd spec-active"></div><div class="sl"></div>
+        <div class="sd"></div>
+      </div>
+      <div class="emsg" id="srs3Err"></div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;" id="specChipsReg">
+        <div class="spec-chip" data-val="credit" onclick="toggleSpecChip(this)">💳 Кредиты</div>
+        <div class="spec-chip" data-val="bankruptcy" onclick="toggleSpecChip(this)">🏦 Банкротство</div>
+        <div class="spec-chip" data-val="mortgage" onclick="toggleSpecChip(this)">🏠 Ипотека</div>
+        <div class="spec-chip" data-val="tax" onclick="toggleSpecChip(this)">📊 Налоги</div>
+        <div class="spec-chip" data-val="legal" onclick="toggleSpecChip(this)">⚖️ Юридические</div>
+        <div class="spec-chip" data-val="auto" onclick="toggleSpecChip(this)">🚗 Автокредит</div>
+        <div class="spec-chip" data-val="business" onclick="toggleSpecChip(this)">📋 ИП/ООО</div>
+      </div>
+      <div class="hint" style="margin-bottom:16px;">Можно выбрать несколько · Можно изменить потом</div>
+      <div class="brow">
+        <button class="bbtn" onclick="srGoStep(2)">← Назад</button>
+        <button class="sbtn spec-btn" onclick="srGoStep(4)" style="margin-top:0">Продолжить →</button>
+      </div>
+    </div>
+
+    <!-- ИСПОЛНИТЕЛЬ ШАГ 4: OTP -->
+    <div id="srs4" style="display:none">
+      <div class="role-badge specialist">👨‍💼 Исполнитель <a onclick="goBack()">← сменить роль</a></div>
+      <div class="form-title">Подтвердите email</div>
+      <div class="form-sub">Код отправлен на <strong id="srEmailShow" style="color:var(--text)"></strong></div>
+      <div class="steps">
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd done"></div><div class="sl done"></div>
+        <div class="sd spec-active"></div>
+      </div>
+      <div class="emsg" id="srOtpErr"></div>
+      <div class="otp-row">
+        <input class="otp" id="so1" maxlength="1" type="tel" oninput="om(this,'so2')" onkeydown="ob(event,this,null)">
+        <input class="otp" id="so2" maxlength="1" type="tel" oninput="om(this,'so3')" onkeydown="ob(event,this,'so1')">
+        <input class="otp" id="so3" maxlength="1" type="tel" oninput="om(this,'so4')" onkeydown="ob(event,this,'so2')">
+        <input class="otp" id="so4" maxlength="1" type="tel" oninput="om(this,'so5')" onkeydown="ob(event,this,'so3')">
+        <input class="otp" id="so5" maxlength="1" type="tel" oninput="om(this,'so6')" onkeydown="ob(event,this,'so4')">
+        <input class="otp" id="so6" maxlength="1" type="tel" oninput="omLast(this,'specialist')" onkeydown="ob(event,this,'so5')">
+      </div>
+      <div style="text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:14px;">
+        Не пришло? <a href="#" style="color:var(--gold);text-decoration:none" onclick="resendCode()">Отправить снова</a>
+        <span id="resendInfo2"></span>
+      </div>
+      <div class="brow">
+        <button class="bbtn" onclick="srGoStep(3)">← Назад</button>
+        <button class="sbtn spec-btn" id="srRegBtn" onclick="doSpecReg()" style="margin-top:0">
+          <div class="spin" id="srSpin"></div>
+          <span id="srBtnTxt">Создать аккаунт →</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- УСПЕХ -->
+    <div class="success" id="regSuccess">
+      <div class="sicon">✓</div>
+      <div class="stitle">Аккаунт создан!</div>
+      <div class="ssub" id="succMsg"></div>
+      <button class="gobtn" id="successGoBtn" onclick="goCabinet(true)">Перейти →</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SB_URL = 'https://tdwcldsyxihudfsfhafe.supabase.co';
+const SB_KEY = 'sb_publishable__KeTQuWq4DZdkpd-npZpjw_T7fbCR_p';
+let sb, selectedRole = 'client', resendTimer, currentRegEmail = '', signupSent = false;
+
+try { sb = supabase.createClient(SB_URL, SB_KEY); } catch(e) {}
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', (t==='login'&&i===0)||(t==='register'&&i===1)));
+  document.getElementById('fLogin').classList.toggle('active', t==='login');
+  document.getElementById('fReg').classList.toggle('active', t==='register');
+  if (t === 'register') showRoleStart();
+}
+
+function showRoleStart() {
+  hideAllSteps();
+  signupSent = false;
+  document.getElementById(selectedRole === 'specialist' ? 'srs1' : 'crs1').style.display = 'block';
+}
+
+function hideAllSteps() {
+  ['crs1','crs2','crs3','srs1','srs2','srs3','srs4','regSuccess'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+
+function goBack() { window.location.href = 'index.html'; }
+
+// ── КЛИЕНТ ──
+function crGoStep(n) {
+  if (n === 2) {
+    const name = document.getElementById('crName').value.trim();
+    const phone = document.getElementById('crPhone').value.trim();
+    const email = document.getElementById('crEmail').value.trim();
+    if (!name) { shake('crName'); showErr('crs1Err','Введите имя'); return; }
+    if (phone.replace(/\s/g,'').length < 10) { shake('crPhone'); showErr('crs1Err','Введите корректный телефон'); return; }
+    if (!email.includes('@')) { shake('crEmail'); showErr('crs1Err','Введите корректный email'); return; }
+    hideErr('crs1Err');
+  }
+  if (n === 3) {
+    const p1 = document.getElementById('crPass').value;
+    const p2 = document.getElementById('crPass2').value;
+    if (p1.length < 8) { shake('crPass'); showErr('crs2Err','Минимум 8 символов'); return; }
+    if (p1 !== p2) { shake('crPass2'); showErr('crs2Err','Пароли не совпадают'); return; }
+    hideErr('crs2Err');
+    doClientSignup(); return;
+  }
+  hideAllSteps();
+  document.getElementById('crs'+n).style.display = 'block';
+}
+
+async function doClientSignup() {
+  const name = document.getElementById('crName').value.trim();
+  const phone = '+7' + document.getElementById('crPhone').value.replace(/\s/g,'').trim();
+  const email = document.getElementById('crEmail').value.trim();
+  const pass = document.getElementById('crPass').value;
+  currentRegEmail = email;
+  document.getElementById('crEmailShow').textContent = email;
+
+  if (signupSent) {
+    hideAllSteps(); document.getElementById('crs3').style.display = 'block';
+    setTimeout(() => document.getElementById('co1').focus(), 100); return;
+  }
+
+  if (!sb) {
+    hideAllSteps(); document.getElementById('crs3').style.display = 'block';
+    startResend('resendInfo'); setTimeout(() => document.getElementById('co1').focus(), 100); return;
+  }
+  try {
+    const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { name, phone, role: 'client' } } });
+    if (error) { showErr('crs2Err', translateErr(error.message)); return; }
+    if (data.user) {
+      await sb.from('users').upsert({ id: data.user.id, name, phone, email, role: 'client', created_at: new Date().toISOString() }).catch(() => {});
+    }
+    signupSent = true;
+    hideAllSteps(); document.getElementById('crs3').style.display = 'block';
+    startResend('resendInfo'); setTimeout(() => document.getElementById('co1').focus(), 100);
+  } catch(e) { showErr('crs2Err', 'Ошибка подключения. Попробуйте ещё раз.'); }
+}
+
+async function doClientReg() {
+  const code = ['co1','co2','co3','co4','co5','co6'].map(id => document.getElementById(id).value).join('');
+  if (code.length < 6) { showErr('crOtpErr','Введите код из 6 цифр'); return; }
+  setLoad('crRegBtn','crSpin','crBtnTxt', true, 'Проверяем...');
+  if (!sb) { showClientSuccess(); return; }
+  try {
+    const { error } = await sb.auth.verifyOtp({ email: currentRegEmail, token: code, type: 'signup' });
+    if (error) { setLoad('crRegBtn','crSpin','crBtnTxt', false, 'Создать аккаунт →'); showErr('crOtpErr', 'Неверный код'); return; }
+    showClientSuccess();
+  } catch(e) { setLoad('crRegBtn','crSpin','crBtnTxt', false, 'Создать аккаунт →'); showErr('crOtpErr', 'Ошибка. Попробуйте ещё раз.'); }
+}
+
+function showClientSuccess() {
+  clearInterval(resendTimer); selectedRole = 'client'; hideAllSteps();
+  document.getElementById('succMsg').textContent = 'Добро пожаловать! Опишите вашу задачу — ИИ поможет найти специалиста.';
+  document.getElementById('successGoBtn').textContent = 'Перейти в чат →';
+  document.getElementById('regSuccess').style.display = 'block';
+}
+
+// ── ИСПОЛНИТЕЛЬ ──
+function srGoStep(n) {
+  if (n === 2) {
+    const name = document.getElementById('srName').value.trim();
+    const phone = document.getElementById('srPhone').value.trim();
+    const email = document.getElementById('srEmail').value.trim();
+    if (!name) { shake('srName'); showErr('srs1Err','Введите ФИО'); return; }
+    if (phone.replace(/\s/g,'').length < 10) { shake('srPhone'); showErr('srs1Err','Введите корректный телефон'); return; }
+    if (!email.includes('@')) { shake('srEmail'); showErr('srs1Err','Введите корректный email'); return; }
+    document.getElementById('srEmailShow').textContent = email;
+    hideErr('srs1Err');
+  }
+  if (n === 3) {
+    const p1 = document.getElementById('srPass').value;
+    const p2 = document.getElementById('srPass2').value;
+    if (p1.length < 8) { shake('srPass'); showErr('srs2Err','Минимум 8 символов'); return; }
+    if (p1 !== p2) { shake('srPass2'); showErr('srs2Err','Пароли не совпадают'); return; }
+    hideErr('srs2Err');
+  }
+  if (n === 4) { doSpecSignup(); return; }
+  hideAllSteps();
+  document.getElementById('srs'+n).style.display = 'block';
+}
+
+async function doSpecSignup() {
+  const name = document.getElementById('srName').value.trim();
+  const phone = '+7' + document.getElementById('srPhone').value.replace(/\s/g,'').trim();
+  const email = document.getElementById('srEmail').value.trim();
+  const pass = document.getElementById('srPass').value;
+  const telegram = document.getElementById('srTelegram').value.trim();
+  const specs = Array.from(document.querySelectorAll('#specChipsReg .spec-chip.sel')).map(c => c.dataset.val);
+  currentRegEmail = email;
+
+  if (signupSent) {
+    hideAllSteps(); document.getElementById('srs4').style.display = 'block';
+    setTimeout(() => document.getElementById('so1').focus(), 100); return;
+  }
+
+  if (!sb) {
+    hideAllSteps(); document.getElementById('srs4').style.display = 'block';
+    startResend('resendInfo2'); setTimeout(() => document.getElementById('so1').focus(), 100); return;
+  }
+  try {
+    const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { name, phone, role: 'specialist', telegram, specializations: JSON.stringify(specs) } } });
+    if (error) { showErr('srs3Err', translateErr(error.message)); return; }
+    if (data.user) {
+      await sb.from('users').upsert({ id: data.user.id, name, phone, email, role: 'specialist', telegram, created_at: new Date().toISOString() }).catch(() => {});
+    }
+    signupSent = true;
+    hideAllSteps(); document.getElementById('srs4').style.display = 'block';
+    startResend('resendInfo2'); setTimeout(() => document.getElementById('so1').focus(), 100);
+  } catch(e) { showErr('srs3Err', 'Ошибка подключения. Попробуйте ещё раз.'); }
+}
+
+async function doSpecReg() {
+  const code = ['so1','so2','so3','so4','so5','so6'].map(id => document.getElementById(id).value).join('');
+  if (code.length < 6) { showErr('srOtpErr','Введите код из 6 цифр'); return; }
+  setLoad('srRegBtn','srSpin','srBtnTxt', true, 'Проверяем...');
+  if (!sb) { showSpecSuccess(); return; }
+  try {
+    const { error } = await sb.auth.verifyOtp({ email: currentRegEmail, token: code, type: 'signup' });
+    if (error) { setLoad('srRegBtn','srSpin','srBtnTxt', false, 'Создать аккаунт →'); showErr('srOtpErr', 'Неверный код'); return; }
+    showSpecSuccess();
+  } catch(e) { setLoad('srRegBtn','srSpin','srBtnTxt', false, 'Создать аккаунт →'); showErr('srOtpErr', 'Ошибка. Попробуйте ещё раз.'); }
+}
+
+function showSpecSuccess() {
+  clearInterval(resendTimer); selectedRole = 'specialist'; hideAllSteps();
+  document.getElementById('succMsg').textContent = 'Добро пожаловать! Заполните профиль и начните получать заявки.';
+  document.getElementById('successGoBtn').textContent = 'Перейти в кабинет →';
+  document.getElementById('regSuccess').style.display = 'block';
+}
+
+// ── LOGIN ──
+async function doLogin() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass = document.getElementById('lPass').value;
+  if (!email) { shake('lEmail'); return; }
+  if (!pass) { shake('lPass'); return; }
+  setLoad('loginBtn','lSpin','lBtnTxt', true, 'Входим...');
+  if (!sb) { await delay(1000); setLoad('loginBtn','lSpin','lBtnTxt', false, 'Войти →'); showErr('loginErr','Пользователь не найден'); return; }
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) { setLoad('loginBtn','lSpin','lBtnTxt', false, 'Войти →'); showErr('loginErr', translateErr(error.message)); return; }
+    let role = data.user.user_metadata?.role || 'client';
+    try { const { data: u } = await sb.from('users').select('role').eq('id', data.user.id).maybeSingle(); if (u?.role) role = u.role; } catch(e) {}
+    selectedRole = role;
+    goCabinet(false);
+  } catch(e) { setLoad('loginBtn','lSpin','lBtnTxt', false, 'Войти →'); showErr('loginErr','Ошибка подключения'); }
+}
+
+// ── РЕДИРЕКТЫ ──
+function goCabinet(isNew = true) {
+  localStorage.setItem('userRole', selectedRole);
+  if (selectedRole === 'specialist') {
+    window.location.href = 'broker-cabinet.html' + (isNew ? '?new=1' : '?tab=orders');
+  } else {
+    // Заказчик: новый → чат с ИИ, повторный → кабинет
+    window.location.href = isNew ? 'broker-ai.html' : 'broker-client.html';
+  }
+}
+
+// ── OTP ──
+function om(inp, nextId) { if (inp.value && nextId) document.getElementById(nextId).focus(); }
+function omLast(inp, role) {
+  const prefix = role === 'client' ? 'co' : 'so';
+  const code = [1,2,3,4,5,6].map(i => document.getElementById(prefix+i).value).join('');
+  if (code.length === 6) setTimeout(() => role === 'client' ? doClientReg() : doSpecReg(), 200);
+}
+function ob(e, inp, prevId) { if (e.key === 'Backspace' && !inp.value && prevId) document.getElementById(prevId).focus(); }
+function startResend(infoId) {
+  let s = 60; clearInterval(resendTimer);
+  document.getElementById(infoId).textContent = ' (повтор через ' + s + ' сек)';
+  resendTimer = setInterval(() => { s--; document.getElementById(infoId).textContent = s > 0 ? ' (повтор через ' + s + ' сек)' : ''; if (s <= 0) clearInterval(resendTimer); }, 1000);
+}
+async function resendCode() {
+  if (sb && currentRegEmail) await sb.auth.resend({ type: 'signup', email: currentRegEmail }).catch(() => {});
+  startResend(selectedRole === 'client' ? 'resendInfo' : 'resendInfo2');
+}
+
+// ── HELPERS ──
+function toggleSpecChip(el) { el.classList.toggle('sel'); }
+function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 4000); }
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+function shake(id) { const el = document.getElementById(id); el.classList.add('err'); setTimeout(() => el.classList.remove('err'), 600); }
+function setLoad(btn, spin, txt, loading, label) { const b = document.getElementById(btn); b.disabled = loading; document.getElementById(spin).classList.toggle('show', loading); if (label) document.getElementById(txt).textContent = label; }
+function togglePass(id) { const el = document.getElementById(id); el.type = el.type === 'password' ? 'text' : 'password'; }
+function formatPhone(inp) {
+  let v = inp.value.replace(/\D/g,'').substring(0,10), out = '';
+  if (v.length > 0) out = v.substring(0,3);
+  if (v.length > 3) out += ' ' + v.substring(3,6);
+  if (v.length > 6) out += ' ' + v.substring(6,8);
+  if (v.length > 8) out += ' ' + v.substring(8,10);
+  inp.value = out;
+}
+function checkStr(passId, barId, hintId) {
+  const p = document.getElementById(passId).value;
+  const bar = document.getElementById(barId), hint = document.getElementById(hintId);
+  if (!p) { bar.style.width = '0'; hint.textContent = ''; return; }
+  if (p.length < 6) { bar.style.width='33%'; bar.style.background='var(--red)'; hint.style.color='var(--red)'; hint.textContent='Слабый'; }
+  else if (p.length < 10) { bar.style.width='66%'; bar.style.background='var(--gold)'; hint.style.color='var(--gold)'; hint.textContent='Средний'; }
+  else { bar.style.width='100%'; bar.style.background='var(--green)'; hint.style.color='var(--green)'; hint.textContent='Надёжный ✓'; }
+}
+function translateErr(m) { const map={'Invalid login credentials':'Неверный email или пароль','Email not confirmed':'Подтвердите email — проверьте почту','User already registered':'Этот email уже зарегистрирован'}; return map[m]||m; }
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('selectedRole');
+  if (saved) {
+    localStorage.removeItem('selectedRole');
+    selectedRole = saved;
+    setTimeout(() => switchTab('register'), 100);
+  }
+});
+</script>
+</body>
+<!-- v1776971909 -->
+</html>
+

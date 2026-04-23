@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Брокер — Кабинет заказчика v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d14;
+  --surface: #16161f;
+  --surface2: #1f1f2e;
+  --surface3: #272736;
+  --accent: #7c6fff;
+  --accent2: #5a52cc;
+  --gold: #f0c040;
+  --gold2: #ffd760;
+  --text: #eeeef5;
+  --muted: #7070888;
+  --muted: #72728a;
+  --border: rgba(255,255,255,0.07);
+  --green: #3ecf8e;
+  --red: #ff5e5e;
+  --orange: #ffaa40;
+  --blue: #4fa3ff;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geologica', sans-serif;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse at 10% 0%, rgba(124,111,255,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 100%, rgba(240,192,64,0.04) 0%, transparent 50%);
+}
+
+/* ── NAV ── */
+.nav {
+  padding: 0 28px; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(13,13,20,0.92); backdrop-filter: blur(16px);
+}
+.nav-logo {
+  font-family: 'Unbounded', sans-serif; font-size: 15px; font-weight: 700;
+  background: linear-gradient(135deg, #fff 30%, var(--gold2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-user {
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-ava {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--gold));
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.nav-name { font-size: 13px; font-weight: 500; }
+.nav-new-btn {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 9px; padding: 8px 16px; font-size: 12.5px; font-weight: 500;
+  cursor: pointer; font-family: 'Geologica', sans-serif; transition: all .2s;
+}
+.nav-new-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+
+/* ── LAYOUT ── */
+.layout { display: flex; min-height: calc(100vh - 54px); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  padding: 20px 12px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.menu-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 12px; border-radius: 10px; cursor: pointer;
+  transition: all .2s; font-size: 13px; color: var(--muted);
+}
+.menu-item:hover { background: var(--surface2); color: var(--text); }
+.menu-item.active { background: rgba(124,111,255,0.15); color: var(--accent); font-weight: 500; }
+.menu-icon { font-size: 15px; width: 20px; text-align: center; }
+.menu-dot {
+  margin-left: auto; width: 7px; height: 7px;
+  background: var(--gold); border-radius: 50%; animation: pulse 2s infinite;
+}
+
+/* ── MAIN ── */
+.main { flex: 1; padding: 24px 28px; max-width: 900px; }
+
+.page { display: none; }
+.page.active { display: block; animation: fadeIn .3s ease; }
+
+/* Page header */
+.page-hdr { margin-bottom: 22px; }
+.page-title { font-family: 'Unbounded', sans-serif; font-size: 17px; font-weight: 600; }
+.page-sub { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+
+/* ── STATS ROW ── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+}
+.stat-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.stat-val { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 600; }
+.stat-val.accent { color: var(--accent); }
+.stat-val.gold { color: var(--gold); }
+.stat-val.green { color: var(--green); }
+.stat-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* ── ORDER CARD ── */
+.orders { display: flex; flex-direction: column; gap: 14px; }
+
+.order-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; overflow: hidden; transition: all .25s;
+}
+.order-card:hover { border-color: rgba(124,111,255,0.25); box-shadow: 0 4px 24px rgba(0,0,0,.3); }
+
+.order-head {
+  padding: 16px 20px; display: flex; align-items: center;
+  justify-content: space-between; cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+.order-head-left { display: flex; align-items: center; gap: 12px; }
+.order-type-icon { font-size: 22px; }
+.order-type { font-size: 14px; font-weight: 600; }
+.order-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.order-status-badge {
+  font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 20px;
+  display: flex; align-items: center; gap: 5px;
+}
+.s-new { background: rgba(240,192,64,.12); color: var(--gold); }
+.s-search { background: rgba(79,163,255,.12); color: var(--blue); }
+.s-inwork { background: rgba(124,111,255,.15); color: var(--accent); }
+.s-done { background: rgba(62,207,142,.12); color: var(--green); }
+.s-wait { background: rgba(255,170,64,.12); color: var(--orange); }
+
+/* Order body */
+.order-body { padding: 16px 20px; }
+
+/* TZ block */
+.tz-block {
+  background: var(--surface2); border-radius: 12px; padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.tz-title { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; font-weight: 600; }
+.tz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.tz-row { display: flex; flex-direction: column; gap: 2px; }
+.tz-label { font-size: 10.5px; color: var(--muted); }
+.tz-val { font-size: 13px; font-weight: 500; }
+
+/* Progress steps */
+.progress-steps {
+  display: flex; align-items: center; gap: 0;
+  margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px;
+}
+.step {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 80px;
+}
+.step-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; border: 2px solid var(--border);
+  background: var(--surface2); color: var(--muted); transition: all .3s;
+}
+.step.done .step-dot { background: var(--green); border-color: var(--green); color: #fff; }
+.step.active .step-dot { background: var(--accent); border-color: var(--accent); color: #fff; animation: glow .3s ease; }
+.step-label { font-size: 10px; color: var(--muted); text-align: center; }
+.step.done .step-label { color: var(--green); }
+.step.active .step-label { color: var(--accent); font-weight: 600; }
+.step-line { flex: 1; height: 2px; background: var(--border); margin-top: -20px; min-width: 20px; }
+.step-line.done { background: var(--green); }
+
+/* Specialist assigned */
+.spec-assigned {
+  background: linear-gradient(135deg, rgba(124,111,255,.08), rgba(240,192,64,.04));
+  border: 1px solid rgba(124,111,255,.2);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.spec-ava {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(124,111,255,.3), rgba(240,192,64,.2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.spec-info { flex: 1; }
+.spec-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.spec-meta { font-size: 12px; color: var(--muted); }
+.spec-rating { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--gold); margin-top: 3px; }
+.spec-actions { display: flex; gap: 8px; }
+
+/* Chat */
+.chat-section { margin-bottom: 14px; }
+.chat-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; font-weight: 600; }
+.chat-messages { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; max-height: 200px; overflow-y: auto; }
+.chat-msg { display: flex; gap: 8px; animation: fadeIn .3s ease; }
+.chat-msg.mine { flex-direction: row-reverse; }
+.chat-ava { width: 28px; height: 28px; border-radius: 50%; background: var(--surface3); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+.chat-bbl { max-width: 80%; padding: 9px 13px; border-radius: 13px; font-size: 13px; line-height: 1.5; }
+.chat-msg.theirs .chat-bbl { background: var(--surface2); border: 1px solid var(--border); border-top-left-radius: 3px; }
+.chat-msg.mine .chat-bbl { background: rgba(124,111,255,.2); border: 1px solid rgba(124,111,255,.3); border-top-right-radius: 3px; }
+.chat-time { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.chat-input-row { display: flex; gap: 8px; }
+.chat-input {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 9px 13px; color: var(--text);
+  font-family: 'Geologica', sans-serif; font-size: 13px; outline: none;
+  transition: border-color .2s;
+}
+.chat-input:focus { border-color: var(--accent); }
+.chat-send {
+  width: 38px; height: 38px; background: var(--accent); border: none;
+  border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .2s; flex-shrink: 0;
+}
+.chat-send:hover { background: var(--accent2); }
+.chat-send svg { width: 15px; height: 15px; fill: #fff; }
+
+/* Deposit block */
+.deposit-block {
+  background: var(--surface2); border-radius: 12px; padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 14px;
+}
+.deposit-info { flex: 1; }
+.deposit-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+.deposit-amount { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 600; color: var(--gold); }
+.deposit-status { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+.release-btn {
+  background: var(--green); color: #fff; border: none;
+  border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: 'Geologica', sans-serif; transition: all .2s; white-space: nowrap;
+}
+.release-btn:hover { opacity: .9; transform: translateY(-1px); }
+
+/* Review */
+.review-form { background: var(--surface2); border-radius: 12px; padding: 14px 16px; }
+.review-form-title { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+.star-row { display: flex; gap: 6px; margin-bottom: 10px; }
+.star { font-size: 24px; cursor: pointer; transition: transform .15s; color: var(--border); filter: grayscale(1); }
+.star.active { color: var(--gold); filter: none; transform: scale(1.1); }
+.review-textarea {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 13px; color: var(--text);
+  font-family: 'Geologica', sans-serif; font-size: 13px; outline: none;
+  resize: none; transition: border-color .2s; margin-bottom: 10px;
+}
+.review-textarea:focus { border-color: var(--accent); }
+.review-submit {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 10px; padding: 10px 20px; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: 'Geologica', sans-serif; transition: all .2s;
+}
+.review-submit:hover { background: var(--accent2); }
+
+/* New order button */
+.new-order-card {
+  background: linear-gradient(135deg, rgba(124,111,255,.08), rgba(240,192,64,.04));
+  border: 1px dashed rgba(124,111,255,.3);
+  border-radius: 18px; padding: 28px; text-align: center; cursor: pointer;
+  transition: all .25s;
+}
+.new-order-card:hover { border-color: var(--accent); background: rgba(124,111,255,.1); }
+.new-order-icon { font-size: 32px; margin-bottom: 10px; }
+.new-order-text { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+.new-order-sub { font-size: 12.5px; color: var(--muted); }
+
+/* Referral */
+.ref-card {
+  background: linear-gradient(135deg, rgba(240,192,64,.1), rgba(124,111,255,.08));
+  border: 1px solid rgba(240,192,64,.2); border-radius: 16px; padding: 20px 22px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.ref-info { flex: 1; }
+.ref-title { font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+.ref-sub { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+.ref-link {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; font-size: 12.5px;
+  color: var(--accent); cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.ref-link:hover { border-color: var(--accent); }
+
+/* Notifications */
+.notif-list { display: flex; flex-direction: column; gap: 10px; }
+.notif-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 13px; padding: 13px 16px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.notif-item.unread { border-color: rgba(124,111,255,.25); background: rgba(124,111,255,.04); }
+.notif-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.notif-text { flex: 1; font-size: 13.5px; line-height: 1.55; }
+.notif-time { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 22px; right: 22px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 12px 18px; border-radius: 12px; font-size: 13.5px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4); z-index: 1000;
+  transform: translateY(80px); opacity: 0; transition: all .3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes glow { from{box-shadow:0 0 0 rgba(124,111,255,0)} to{box-shadow:0 0 12px rgba(124,111,255,.5)} }
+
+
+@media (max-width: 768px) {
+  .nav { padding: 0 14px; height: 52px; }
+  .nav-new-btn { padding: 7px 12px; font-size: 12px; }
+  .nav-name { display: none; }
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; display: flex; flex-direction: row;
+    overflow-x: auto; padding: 8px 12px; gap: 6px;
+    border-right: none; border-bottom: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch; flex-shrink: 0;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .menu-item {
+    flex-shrink: 0; white-space: nowrap; padding: 7px 14px;
+    border-radius: 20px; font-size: 12px;
+  }
+  .menu-icon { font-size: 13px; }
+  .main { padding: 14px; }
+  .page-title { font-size: 16px; }
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat-card { padding: 12px; }
+  .stat-val { font-size: 18px; }
+  .order-card { border-radius: 14px; }
+  .order-head { padding: 12px 14px; }
+  .order-type { font-size: 13px; }
+  .order-body { padding: 12px 14px; }
+  #specsCatalog { grid-template-columns: 1fr !important; }
+  .ref-card { flex-direction: column; gap: 12px; }
+}
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .nav-new-btn span { display: none; }
+  #notifBtn { width: 34px; height: 34px; font-size: 15px; }
+}
+
+/* ═══════════ MOBILE ═══════════ */
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; flex-direction: row; overflow-x: auto;
+    padding: 8px 12px; gap: 6px; border-right: none;
+    border-bottom: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .menu-item { flex-shrink: 0; white-space: nowrap; padding: 7px 13px; border-radius: 20px; font-size: 12px; }
+  .main { padding: 14px; }
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .stat-card { padding: 12px 10px; }
+  .stat-val { font-size: 20px; }
+  #specsCatalog { grid-template-columns: 1fr !important; }
+  .order-head { padding: 11px 13px; gap: 10px; }
+  .order-type { font-size: 13px; }
+  .order-body { padding: 11px 13px; }
+}
+@media (max-width: 600px) {
+  .nav { padding: 0 12px; height: 50px; }
+  .nav-logo { font-size: 14px; }
+  .nav-new-btn { padding: 7px 12px; font-size: 12px; }
+  /* Скрываем текст кнопки на маленьких экранах */
+  .nav-name { display: none; }
+  .page-title { font-size: 16px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .spec-filter { padding: 6px 12px; font-size: 11.5px; }
+  /* Модальное окно на весь экран */
+  #specModal > div { margin: 0 !important; border-radius: 20px 20px 0 0 !important; position: fixed; bottom: 0; left: 0; right: 0; max-height: 90vh; overflow-y: auto; }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo" onclick="window.location.href='index.html'" style="cursor:pointer;">БРОКЕР</div>
+  <!-- Переключатель роли -->
+  <div style="display:flex;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px;gap:2px;">
+    <button onclick="window.location.href='broker-cabinet.html'" style="background:transparent;color:rgba(255,255,255,.5);border:none;border-radius:16px;padding:5px 14px;font-size:11.5px;font-weight:500;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">👨‍💼 Исполнитель</button>
+    <button id="roleClientBtn" style="background:var(--gold);color:#0d0d14;border:none;border-radius:16px;padding:5px 14px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Geologica',sans-serif;">👤 Заказчик</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="nav-new-btn" onclick="window.location.href='broker-ai.html'">+ Создать заявку</button>
+    <button id="notifBtn" onclick="showPage('notifications');setActive('notifications')" style="position:relative;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text);width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .2s;">
+      🔔
+      <span id="notifDot" style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:var(--accent);border-radius:50%;display:none;"></span>
+    </button>
+    <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:6px 12px;cursor:pointer;" onclick="showPage('settings');setActive('settings')">
+      <div onclick="document.getElementById('clientPhotoUpload').click()" title="Загрузить фото" style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;">
+        <img id="clientAvatarImg" src="" style="width:100%;height:100%;object-fit:cover;display:none;" alt="">
+        <span id="clientAvatarEmoji" style="font-size:14px;">👤</span>
+      </div>
+      <input type="file" id="clientPhotoUpload" accept="image/*" style="display:none" onchange="uploadClientPhoto(this)">
+      <div style="font-size:13px;font-weight:500;" id="navName">...</div>
+    </div>
+    <button onclick="doLogout()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:7px 12px;font-size:12px;cursor:pointer;font-family:Geologica,sans-serif;transition:all .2s;">Выйти</button>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="menu-item" id="menu-new" onclick="window.location.href='broker-ai.html'">
+      <span class="menu-icon">➕</span> Создать заявку
+    </div>
+    <div class="menu-item active" id="menu-orders" onclick="showPage('orders');setActive('orders')">
+      <span class="menu-icon">📋</span> Мои заявки
+      <span class="menu-dot" id="ordersDot" style="display:none;"></span>
+    </div>
+    <div class="menu-item" id="menu-specialists" onclick="showPage('specialists');setActive('specialists')">
+      <span class="menu-icon">👨‍💼</span> Исполнители
+    </div>
+    <div class="menu-item" id="menu-referral" onclick="showPage('referral');setActive('referral')">
+      <span class="menu-icon">🎁</span> Реферальная
+    </div>
+    <div class="menu-item" id="menu-settings" onclick="showPage('settings');setActive('settings')">
+      <span class="menu-icon">⚙️</span> Настройки кабинета
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ORDERS PAGE -->
+    <div id="page-orders" class="page active">
+      <div class="page-hdr">
+        <div class="page-title">Мои заявки</div>
+        <div class="page-sub">Отслеживайте статус и общайтесь со специалистом</div>
+      </div>
+
+      <div class="stats-row" id="clientStatsRow">
+        <div class="stat-card">
+          <div class="stat-label">Активных</div>
+          <div class="stat-val accent" id="clientStatActive">0</div>
+          <div class="stat-sub">в работе</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Задаток</div>
+          <div class="stat-val gold" id="clientStatDeposit">0 ₽</div>
+          <div class="stat-sub">заморожен</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Закрыто</div>
+          <div class="stat-val green" id="clientStatDone">0</div>
+          <div class="stat-sub">успешно</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Бонусы</div>
+          <div class="stat-val" style="color:var(--gold2)" id="clientStatBonus">0 ₽</div>
+          <div class="stat-sub">от рефералов</div>
+        </div>
+      </div>
+
+      <div class="orders" id="clientOrdersList">
+
+        <div id="clientEmptyOrders" style="text-align:center;padding:48px 20px;color:var(--muted);">
+          <div style="font-size:40px;margin-bottom:14px;">📋</div>
+          <div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:600;margin-bottom:8px;">Заявок пока нет</div>
+          <div style="font-size:13px;margin-bottom:20px;">Создайте первую заявку и ИИ подберёт специалиста</div>
+          <button onclick="window.location.href='broker-ai.html'" style="background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px 24px;font-family:'Geologica',sans-serif;font-size:13px;font-weight:500;cursor:pointer;">+ Создать заявку</button>
+        </div>
+      </div><!-- /orders list -->
+    </div><!-- /page-orders -->
+
+    <!-- SPECIALISTS PAGE -->
+    <div id="page-specialists" class="page">
+      <div class="page-hdr">
+        <div class="page-title">Каталог исполнителей</div>
+        <div class="page-sub">Проверенные специалисты платформы</div>
+      </div>
+
+      <!-- Фильтры -->
+      <div id="specsFilters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+        <button class="spec-filter active" onclick="filterSpecs('all',this)" style="background:var(--accent);color:#fff;border:none;border-radius:20px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">Все</button>
+        <button class="spec-filter" onclick="filterSpecs('кредит',this)" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">💳 Кредиты</button>
+        <button class="spec-filter" onclick="filterSpecs('банкрот',this)" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">🏦 Банкротство</button>
+        <button class="spec-filter" onclick="filterSpecs('ипотек',this)" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">🏠 Ипотека</button>
+        <button class="spec-filter" onclick="filterSpecs('налог',this)" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">📊 Налоги</button>
+        <button class="spec-filter" onclick="filterSpecs('юрид',this)" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">⚖️ Юристы</button>
+      </div>
+
+      <!-- Список -->
+      <div id="specsCatalog" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);">
+          <div style="font-size:32px;margin-bottom:12px;">⏳</div>
+          <div style="font-size:14px;">Загрузка специалистов...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS PAGE -->
+    <div id="page-notifications" class="page">
+      <div class="page-hdr">
+        <div class="page-title">Уведомления</div>
+        <div class="page-sub">3 непрочитанных</div>
+      </div>
+      <div class="notif-list">
+        <div class="notif-item unread">
+          <div class="notif-icon">💬</div>
+          <div>
+            <div class="notif-text">Алексей Морозов ответил на ваше сообщение по заявке #1042</div>
+            <div class="notif-time">10 минут назад</div>
+          </div>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-icon">⚡</div>
+          <div>
+            <div class="notif-text">По заявке #1042 специалист подготовил список банков для подачи заявки</div>
+            <div class="notif-time">35 минут назад</div>
+          </div>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-icon">🎁</div>
+          <div>
+            <div class="notif-text">По вашей реферальной ссылке зарегистрировался новый пользователь. Начислено 500 ₽ бонусов!</div>
+            <div class="notif-time">2 часа назад</div>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon">✅</div>
+          <div>
+            <div class="notif-text">Заявка #1021 закрыта. Задаток 3 000 ₽ перечислен специалисту. Не забудьте оставить отзыв!</div>
+            <div class="notif-time">18 апреля</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REFERRAL PAGE -->
+    <div id="page-referral" class="page">
+      <div class="page-hdr">
+        <div class="page-title">Реферальная программа</div>
+        <div class="page-sub">Приводите друзей — получайте бонусы</div>
+      </div>
+      <div class="ref-card" style="margin-bottom:20px;">
+        <div class="ref-info">
+          <div class="ref-title">🎁 Приведи друга — получи 500 ₽</div>
+          <div class="ref-sub">Поделитесь ссылкой. Когда друг оставит первый задаток — вам начислится 500 ₽ на счёт. Ваш друг тоже получит скидку 10% на первую задачу.</div>
+        </div>
+        <div class="ref-link" onclick="copyRef()">📋 Скопировать ссылку</div>
+      </div>
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat-card"><div class="stat-label">Приглашено</div><div class="stat-val accent" id="clientStatActive">0</div><div class="stat-sub">человека</div></div>
+        <div class="stat-card"><div class="stat-label">Заработано</div><div class="stat-val gold">500 ₽</div><div class="stat-sub">бонусов</div></div>
+        <div class="stat-card"><div class="stat-label">Доступно</div><div class="stat-val green">500 ₽</div><div class="stat-sub">к списанию</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="page">
+      <div class="page-hdr">
+        <div class="page-title">Настройки кабинета</div>
+        <div class="page-sub">Ваши личные данные на платформе</div>
+      </div>
+
+      <!-- Личные данные -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px;">
+        <div style="font-family:Unbounded,sans-serif;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Личные данные</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;">ФИО</div>
+            <input id="settingsName" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Geologica',sans-serif;font-size:13px;outline:none;transition:border-color .2s;" placeholder="Иванов Алексей Иванович">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;">Телефон</div>
+            <input id="settingsPhone" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Geologica',sans-serif;font-size:13px;outline:none;transition:border-color .2s;" placeholder="+7 900 000 00 00" type="tel">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;">Город</div>
+            <input id="settingsCity" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--text);font-family:'Geologica',sans-serif;font-size:13px;outline:none;transition:border-color .2s;" placeholder="Москва">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;">Email</div>
+            <input id="settingsEmail" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--muted);font-family:'Geologica',sans-serif;font-size:13px;outline:none;" readonly>
+          </div>
+        </div>
+        <button onclick="saveClientSettings()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-family:'Geologica',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;">💾 Сохранить</button>
+      </div>
+
+      <!-- Безопасность -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;">
+        <div style="font-family:Unbounded,sans-serif;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Безопасность</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:13.5px;font-weight:500;">Изменить пароль</div>
+            <div style="font-size:12px;color:var(--muted);">Отправим письмо для смены пароля</div>
+          </div>
+          <button onclick="showToast('Письмо отправлено на ваш email')" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:8px 14px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;">Изменить</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+          <div>
+            <div style="font-size:13.5px;font-weight:500;color:var(--red);">Выйти из аккаунта</div>
+            <div style="font-size:12px;color:var(--muted);">Завершить текущую сессию</div>
+          </div>
+          <button onclick="doLogout()" style="background:rgba(255,94,94,.08);border:1px solid rgba(255,94,94,.2);color:var(--red);border-radius:9px;padding:8px 14px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;">Выйти →</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;">
+          <div>
+            <div style="font-size:13.5px;font-weight:500;color:var(--red);">Удалить аккаунт</div>
+            <div style="font-size:12px;color:var(--muted);">Все данные будут удалены безвозвратно</div>
+          </div>
+          <button onclick="confirmDeleteAccount()" style="background:rgba(255,94,94,.1);border:1px solid rgba(255,94,94,.3);color:var(--red);border-radius:9px;padding:8px 14px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;font-weight:600;">🗑 Удалить</button
+        </div>
+      </div>
+    </div>
+
+
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://tdwcldsyxihudfsfhafe.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__KeTQuWq4DZdkpd-npZpjw_T7fbCR_p';
+
+// Загрузка данных пользователя
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) { window.location.href = 'login.html'; return; }
+
+    const meta = user.user_metadata || {};
+
+    // Загружаем профиль из client_settings
+    let profile = null;
+    try {
+      const res = await sb.from('client_settings').select('*').eq('id', user.id).maybeSingle();
+      if (!res.error) profile = res.data;
+    } catch(e) {}
+
+    const name = (profile && profile.full_name) || meta.name || user.email.split('@')[0];
+    const firstName = name.split(' ')[0];
+
+    // Навбар
+    const navName = document.getElementById('navName');
+    if (navName) navName.textContent = firstName;
+
+    // Заполняем настройки
+    const sName = document.getElementById('settingsName');
+    if (sName) sName.value = (profile && profile.full_name) || meta.name || '';
+    const sPhone = document.getElementById('settingsPhone');
+    if (sPhone) sPhone.value = (profile && profile.phone) || meta.phone || '';
+    const sCity = document.getElementById('settingsCity');
+    if (sCity) sCity.value = (profile && profile.city) || '';
+    const sEmail = document.getElementById('settingsEmail');
+    if (sEmail) sEmail.value = user.email || '';
+
+    window._sb = sb;
+    window._userId = user.id;
+
+    // Загружаем аватар заказчика
+    try {
+      const { data: cs } = await sb.from('client_settings').select('avatar_url').eq('id', user.id).maybeSingle();
+      if (cs && cs.avatar_url) {
+        const img = document.getElementById('clientAvatarImg');
+        const emoji = document.getElementById('clientAvatarEmoji');
+        if (img) { img.src = cs.avatar_url; img.style.display = 'block'; }
+        if (emoji) emoji.style.display = 'none';
+      }
+    } catch(e) {}
+
+    // Загружаем заявки клиента
+    await loadClientOrders(sb, user.id);
+
+  } catch(e) { console.log('Auth error:', e); }
+});
+
+// Загрузка заявок клиента из Supabase
+async function loadClientOrders(sb, userId) {
+  try {
+    const { data: orders, error } = await sb
+      .from('orders')
+      .select('*')
+      .eq('client_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error || !orders || !orders.length) return;
+
+    const empty = document.getElementById('clientEmptyOrders');
+    if (empty) empty.style.display = 'none';
+
+    const statsRow = document.getElementById('clientStatsRow');
+    if (statsRow) statsRow.style.display = 'grid';
+
+    const list = document.getElementById('clientOrdersList');
+    if (!list) return;
+
+    let active = 0, done = 0;
+
+    for (const order of orders) {
+      if (order.status === 'inwork') active++;
+      if (order.status === 'done') done++;
+
+      const date = new Date(order.created_at).toLocaleDateString('ru-RU', {day:'numeric', month:'long'});
+
+      const statusMap = {
+        'new': '<span class="order-status-badge s-search">🔍 Ищем специалиста</span>',
+        'inwork': '<span class="order-status-badge s-inwork">⚡ Специалист принял</span>',
+        'done': '<span class="order-status-badge s-done">✅ Выполнено</span>'
+      };
+
+      let tz = {};
+      try { tz = JSON.parse(order.tz_data || '{}'); } catch(e) {}
+
+      const tzRows = Object.entries(tz).slice(0,4).map(([k,v]) => {
+        const labels = {'тип_задачи':'Тип','сумма':'Сумма','банки':'Банки','дедлайн':'Дедлайн'};
+        return v ? '<div class="tz-row"><span class="tz-label">' + (labels[k]||k) + '</span><span class="tz-val">' + v + '</span></div>' : '';
+      }).join('');
+
+      // Контакты специалиста если заявка принята
+      let specContactHtml = '';
+      if (order.status === 'inwork' && order.specialist_id) {
+        try {
+          const { data: sp } = await sb.from('profiles')
+            .select('full_name, phone, telegram')
+            .eq('id', order.specialist_id)
+            .maybeSingle();
+          if (sp && (sp.phone || sp.telegram)) {
+            specContactHtml =
+              '<div style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:12px;padding:12px 14px;margin-top:10px;">' +
+                '<div style="font-size:11px;color:var(--green);font-weight:700;margin-bottom:8px;">👨‍💼 Ваш специалист</div>' +
+                '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">' + (sp.full_name || 'Специалист') + '</div>' +
+                '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+                  (sp.phone ? '<a href="tel:' + sp.phone + '" style="background:var(--green);color:#0d0d14;border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;text-decoration:none;">📞 ' + sp.phone + '</a>' : '') +
+                  (sp.telegram ? '<a href="https://t.me/' + sp.telegram.replace("@","") + '" target="_blank" style="background:rgba(79,163,255,.15);color:var(--blue);border:1px solid rgba(79,163,255,.3);border-radius:9px;padding:8px 14px;font-size:12.5px;font-weight:600;text-decoration:none;">✈️ ' + sp.telegram + '</a>' : '') +
+                '</div>' +
+              '</div>';
+          }
+        } catch(e) {}
+      }
+
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.innerHTML =
+        '<div class="order-head" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\'">' +
+          '<div class="order-head-left">' +
+            '<div class="order-type-icon">💼</div>' +
+            '<div>' +
+              '<div class="order-type">' + (order.task_type || 'Заявка') + '</div>' +
+              '<div class="order-date">Подана ' + date + ' · #' + order.id.slice(0,8).toUpperCase() + '</div>' +
+            '</div>' +
+          '</div>' +
+          (statusMap[order.status] || statusMap['new']) +
+        '</div>' +
+        '<div class="order-body" style="display:none;">' +
+          '<div class="tz-block"><div class="tz-title">Техническое задание</div>' +
+            '<div class="tz-grid">' + (tzRows || '<div class="tz-row"><span class="tz-label">Статус</span><span class="tz-val">Обрабатывается</span></div>') + '</div>' +
+          '</div>' +
+          specContactHtml +
+        '</div>';
+
+      list.appendChild(card);
+    }
+
+    const sa = document.getElementById('clientStatActive');
+    if (sa) sa.textContent = active;
+    const sd = document.getElementById('clientStatDone');
+    if (sd) sd.textContent = done;
+
+  } catch(e) { console.log('loadClientOrders error:', e); }
+}
+
+
+async function saveClientSettings() {
+  if (!window._sb || !window._userId) { showToast('Ошибка авторизации'); return; }
+  const name = document.getElementById('settingsName').value.trim();
+  const phone = document.getElementById('settingsPhone').value.trim();
+  const city = document.getElementById('settingsCity').value.trim();
+
+  try {
+    const { error } = await window._sb.from('client_settings').upsert({
+      id: window._userId, full_name: name, phone, city,
+      updated_at: new Date().toISOString()
+    });
+    if (error) { showToast('❌ Ошибка: ' + error.message); return; }
+    // Обновляем имя в навбаре
+    const navName = document.getElementById('navName');
+    if (navName && name) navName.textContent = name.split(' ')[0];
+    showToast('✅ Данные сохранены!');
+  } catch(e) { showToast('❌ Ошибка подключения'); }
+}
+
+// ══ КАТАЛОГ ИСПОЛНИТЕЛЕЙ ══
+let allSpecialists = [];
+
+async function loadSpecialists() {
+  if (allSpecialists.length > 0) { renderSpecialists(allSpecialists); return; }
+  try {
+    const { data } = await window._sb.from('profiles')
+      .select('id, full_name, city, experience, about, specializations, price1, price2, price3, avatar_url')
+      .not('full_name', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(20);
+
+    if (data && data.length > 0) {
+      allSpecialists = data;
+      renderSpecialists(data);
+    } else {
+      document.getElementById('specsCatalog').innerHTML =
+        '<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--muted);">' +
+        '<div style="font-size:36px;margin-bottom:12px;">👨‍💼</div>' +
+        '<div style="font-family:Unbounded,sans-serif;font-size:14px;font-weight:600;margin-bottom:6px;">Специалисты появятся скоро</div>' +
+        '<div style="font-size:13px;">Платформа набирает исполнителей</div>' +
+        '</div>';
+    }
+  } catch(e) { console.log('loadSpecialists error:', e); }
+}
+
+function renderSpecialists(list) {
+  const grid = document.getElementById('specsCatalog');
+  if (!grid) return;
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);">Специалистов не найдено</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  list.forEach((s, i) => {
+    const name = s.full_name || 'Специалист';
+    const city = s.city || '';
+    const exp  = s.experience || '';
+    const about = s.about ? s.about.slice(0, 90) + (s.about.length > 90 ? '...' : '') : '';
+    const price = s.price1 || s.price2 || s.price3 || 'Договорная';
+
+    let specs = [];
+    try { specs = JSON.parse(s.specializations || '[]'); } catch(e) {}
+    const specTags = specs.slice(0, 3).map(sp =>
+      '<span style="background:rgba(124,111,255,.12);color:var(--accent);padding:3px 8px;border-radius:20px;font-size:11px;">' + sp + '</span>'
+    ).join('');
+
+    const avatarContent = s.avatar_url
+      ? '<img src="' + s.avatar_url + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'
+      : '<span style="font-size:22px;">👨‍💼</span>';
+
+    const card = document.createElement('div');
+    card.className = 'spec-card';
+    card.dataset.specs = (s.specializations || '').toLowerCase();
+    card.dataset.name = name;
+    card.dataset.city = city;
+    card.dataset.exp = exp;
+    card.dataset.about = s.about || '';
+    card.dataset.avatar = s.avatar_url || '';
+    card.dataset.specs2 = s.specializations || '[]';
+    for (let pi = 1; pi <= 9; pi++) { if (s['price'+pi]) card.dataset['price'+pi] = s['price'+pi]; }
+    card.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;transition:all .25s;animation:fadeIn .4s ease ' + (i*0.06) + 's both;cursor:pointer;';
+    card.onclick = function(e) { if (!e.target.closest('button')) openSpecModal(this); };
+    card.onmouseover = function(){ this.style.borderColor='rgba(124,111,255,.35)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 32px rgba(0,0,0,.25)'; };
+    card.onmouseout  = function(){ this.style.borderColor='var(--border)'; this.style.transform=''; this.style.boxShadow=''; };
+
+    card.innerHTML =
+      '<div style="display:flex;gap:14px;align-items:flex-start;">' +
+        '<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">' + avatarContent + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:15px;font-weight:600;margin-bottom:3px;">' + name + '</div>' +
+          '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">' +
+            (city ? city : '') + (city && exp ? ' · ' : '') + (exp ? exp + ' опыта' : '') +
+          '</div>' +
+          (specTags ? '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">' + specTags + '</div>' : '') +
+          (about ? '<div style="font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px;">' + about + '</div>' : '') +
+          '<div style="display:flex;align-items:center;justify-content:space-between;">' +
+            '<span style="font-size:13px;font-weight:600;color:var(--gold);">' + price + '</span>' +
+            '<button onclick="handleContactSpec(event)" data-sid="' + s.id + '" style="background:var(--accent);color:#fff;border:none;border-radius:9px;padding:8px 16px;font-size:12.5px;cursor:pointer;font-family:Geologica,sans-serif;">Написать →</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    grid.appendChild(card);
+  });
+}
+
+function filterSpecs(keyword, btn) {
+  document.querySelectorAll('.spec-filter').forEach(b => {
+    b.style.background = 'var(--surface2)';
+    b.style.color = 'var(--muted)';
+    b.style.border = '1px solid var(--border)';
+  });
+  btn.style.background = 'var(--accent)';
+  btn.style.color = '#fff';
+  btn.style.border = 'none';
+
+  const cards = document.querySelectorAll('.spec-card');
+  cards.forEach(card => {
+    const match = keyword === 'all' || (card.dataset.specs && card.dataset.specs.includes(keyword)) || (card.dataset.specs2 && card.dataset.specs2.toLowerCase().includes(keyword));
+    card.style.display = match ? 'block' : 'none';
+  });
+}
+
+function handleContactSpec(e) {
+  const btn = e.currentTarget;
+  contactSpecialist(btn.dataset.sid);
+}
+
+function contactSpecialist(id) {
+  showToast('Переходим к созданию заявки для ' + name + '...');
+  setTimeout(() => window.location.href = 'broker-ai.html', 1500);
+}
+
+// Загрузка фото заказчика
+async function uploadClientPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Показываем превью сразу
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = document.getElementById('clientAvatarImg');
+    const emoji = document.getElementById('clientAvatarEmoji');
+    if (img) { img.src = e.target.result; img.style.display = 'block'; }
+    if (emoji) emoji.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+
+  // Сохраняем в Supabase Storage
+  try {
+    if (!window._sb || !window._userId) { showToast('⚠️ Фото сохранено только локально'); return; }
+    const ext = file.name.split('.').pop();
+    const path = window._userId + '/client-avatar.' + ext;
+    const { error } = await window._sb.storage.from('avatars').upload(path, file, { upsert: true });
+    if (!error) {
+      const { data } = window._sb.storage.from('avatars').getPublicUrl(path);
+      await window._sb.from('client_settings').upsert({
+        id: window._userId,
+        avatar_url: data.publicUrl,
+        updated_at: new Date().toISOString()
+      });
+      showToast('✅ Фото загружено!');
+    } else {
+      showToast('⚠️ Фото сохранено только локально');
+    }
+  } catch(e) {
+    showToast('⚠️ Фото сохранено только локально');
+  }
+}
+
+function confirmDeleteAccount() {
+  const m = document.getElementById('deleteModal');
+  m.style.display = 'flex';
+  document.getElementById('deleteConfirmInput').value = '';
+  const btn = document.getElementById('deleteConfirmBtn');
+  btn.disabled = true; btn.style.cursor = 'not-allowed';
+}
+function closeDeleteModal() {
+  document.getElementById('deleteModal').style.display = 'none';
+}
+function checkDeleteConfirm() {
+  const ok = document.getElementById('deleteConfirmInput').value === 'УДАЛИТЬ';
+  const btn = document.getElementById('deleteConfirmBtn');
+  btn.disabled = !ok;
+  btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+  btn.style.background = ok ? 'rgba(255,94,94,.7)' : 'rgba(255,94,94,.2)';
+  btn.style.color = ok ? '#fff' : 'var(--red)';
+}
+async function doDeleteAccount() {
+  const btn = document.getElementById('deleteConfirmBtn');
+  btn.textContent = 'Удаляем...'; btn.disabled = true;
+  try {
+    const sb = window._sb;
+    const userId = window._userId;
+
+    if (!sb || !userId) throw new Error('Нет подключения к базе данных');
+
+    // Удаляем данные из таблиц
+    await sb.from('client_settings').delete().eq('id', userId);
+    await sb.from('profiles').delete().eq('id', userId);
+    await sb.from('users').delete().eq('id', userId);
+    await sb.from('orders').delete().eq('client_id', userId);
+
+    // Удаляем из auth через RPC (SECURITY DEFINER функция)
+    const { error: rpcError } = await sb.rpc('delete_user_account');
+    if (rpcError) console.warn('RPC предупреждение:', rpcError.message);
+
+    // Fallback: меняем пароль чтобы заблокировать доступ
+    const randomPass = Math.random().toString(36) + Math.random().toString(36) + '!A1';
+    const { error: passError } = await sb.auth.updateUser({ password: randomPass });
+    if (passError) console.warn('Смена пароля:', passError.message);
+
+    // Выходим
+    await sb.auth.signOut();
+
+    closeDeleteModal();
+    window.location.href = 'index.html?deleted=1';
+  } catch(e) {
+    console.error('Ошибка удаления:', e);
+    btn.textContent = 'Удалить аккаунт'; btn.disabled = false;
+    showToast('Ошибка при удалении: ' + e.message);
+  }
+}
+async function doLogout() {
+  if (window._sb) await window._sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+function showPage(name) {
+  // Скрываем все страницы
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  // Показываем нужную
+  const page = document.getElementById('page-' + name);
+  if (page) {
+    page.classList.add('active');
+    page.style.display = 'block';
+    page.style.animation = 'fadeIn .3s ease';
+  }
+  // Подсвечиваем пункт меню
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  const item = document.getElementById('menu-' + name);
+  if (item) item.classList.add('active');
+
+  // Загружаем специалистов при переходе в каталог
+  if (name === 'specialists' && window._sb) loadSpecialists();
+}
+
+function setActive(name) {
+  // Теперь всё делает showPage
+}
+
+function toggleBody(id) {
+  const body = document.getElementById(id);
+  const num = id.replace('body','');
+  const arrow = document.getElementById('arrow'+num);
+  const isHidden = body.style.display === 'none';
+  body.style.display = isHidden ? 'block' : 'none';
+  arrow.textContent = isHidden ? '↑' : '↓';
+}
+
+function sendChat(chatId, inputId) {
+  const input = document.getElementById(inputId);
+  const text = input.value.trim();
+  if (!text) return;
+  const chat = document.getElementById(chatId);
+  const div = document.createElement('div');
+  div.className = 'chat-msg mine';
+  div.innerHTML = `<div class="chat-ava">👤</div><div><div class="chat-bbl">${text}</div><div class="chat-time">${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2,'0')}</div></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  input.value = '';
+  setTimeout(() => {
+    const reply = document.createElement('div');
+    reply.className = 'chat-msg theirs';
+    reply.innerHTML = `<div class="chat-ava">👨‍💼</div><div><div class="chat-bbl">Понял, спасибо! Учту при подаче заявки.</div><div class="chat-time">${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2,'0')}</div></div>`;
+    chat.appendChild(reply);
+    chat.scrollTop = chat.scrollHeight;
+  }, 1200);
+}
+
+function releaseDeposit(btn) {
+  btn.textContent = '✓ Подтверждено!';
+  btn.style.background = 'var(--muted)';
+  btn.disabled = true;
+  btn.closest('.deposit-block').querySelector('.deposit-status').textContent = 'Задаток перечислен специалисту';
+  showToast('✅ Задаток разморожен! Не забудьте оставить отзыв.');
+}
+
+function rateStar(orderId, rating) {
+  const stars = document.querySelectorAll(`#stars${orderId} .star`);
+  stars.forEach((s, i) => s.classList.toggle('active', i < rating));
+}
+
+function submitReview(btn) {
+  btn.textContent = '✓ Отзыв отправлен!';
+  btn.style.background = 'var(--green)';
+  btn.disabled = true;
+  showToast('Спасибо за отзыв! Это помогает другим пользователям.');
+}
+
+function copyRef() {
+  showToast('📋 Ссылка скопирована: broker-ai.ru/?ref=alex42');
+}
+
+console.log("✅ broker-client.html v2 загружен");
+// ── МОДАЛЬНОЕ ОКНО ПРОФИЛЯ СПЕЦИАЛИСТА ──
+window.openSpecModal = function openSpecModal(card) {
+  const d = card.dataset;
+  const modal = document.getElementById('specModal');
+  if (!modal) return;
+  modal.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+
+  // Аватар
+  const ava = document.getElementById('modalAva');
+  if (ava) {
+    if (d.avatar && d.avatar !== 'undefined' && d.avatar !== '') {
+      ava.innerHTML = '<img src="' + d.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">';
+    } else {
+      ava.textContent = '👨‍💼';
+    }
+  }
+
+  const elName = document.getElementById('modalName');
+  if (elName) elName.textContent = d.name || '—';
+
+  const elMeta = document.getElementById('modalMeta');
+  if (elMeta) elMeta.textContent = [d.city, d.exp ? d.exp + ' опыта' : ''].filter(Boolean).join(' · ');
+
+  // Специализации
+  let specs = [];
+  try { specs = JSON.parse(d.specs2 || '[]'); } catch(e) {}
+  const elSpecs = document.getElementById('modalSpecs');
+  if (elSpecs) elSpecs.innerHTML = specs.map(function(s) {
+    return '<span style="background:rgba(124,111,255,.12);color:var(--accent);padding:4px 10px;border-radius:20px;font-size:12px;">' + s + '</span>';
+  }).join('');
+
+  const elAbout = document.getElementById('modalAbout');
+  if (elAbout) elAbout.textContent = d.about || '';
+
+  // Цены
+  var priceLabels = ['Кредиты','Рефинансирование','Ипотека','Банкротство','Юридические','ИП/ООО','Автокредит','Страховка','КАСКО'];
+  var priceHtml = '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;font-weight:600;">Стоимость услуг</div>';
+  var hasPrices = false;
+  for (var pi = 1; pi <= 9; pi++) {
+    var p = d['price' + pi];
+    if (p && p !== 'undefined') {
+      hasPrices = true;
+      priceHtml += '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;">' +
+        '<span style="color:var(--muted);">' + (priceLabels[pi-1] || 'Услуга') + '</span>' +
+        '<span style="font-weight:600;color:var(--gold);">' + p + '</span>' +
+        '</div>';
+    }
+  }
+  var elPrices = document.getElementById('modalPrices');
+  if (elPrices) elPrices.innerHTML = hasPrices ? priceHtml : '<div style="font-size:13px;color:var(--muted);">Цена договорная</div>';
+}
+
+window.closeSpecModal = function closeSpecModal() {
+  var modal = document.getElementById('specModal');
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+window.goToAI = function goToAI() {
+  closeSpecModal();
+  window.location.href = 'broker-ai.html';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+
+<!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ СПЕЦИАЛИСТА -->
+<div id="specModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;backdrop-filter:blur(4px);overflow-y:auto;" onclick="if(event.target===this)closeSpecModal()">
+  <div style="max-width:560px;margin:40px auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;animation:fadeIn .3s ease;">
+    <!-- Шапка -->
+    <div style="background:var(--surface2);padding:20px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);">
+      <div id="modalAva" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--gold));display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;overflow:hidden;"></div>
+      <div style="flex:1;">
+        <div id="modalName" style="font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;margin-bottom:4px;"></div>
+        <div id="modalMeta" style="font-size:13px;color:var(--muted);"></div>
+      </div>
+      <button onclick="closeSpecModal()" style="background:rgba(255,255,255,.08);border:none;color:var(--muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+    <!-- Содержимое -->
+    <div style="padding:20px 24px;">
+      <div id="modalSpecs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;"></div>
+      <div id="modalAbout" style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:16px;"></div>
+      <!-- Цены -->
+      <div id="modalPrices" style="background:var(--surface2);border-radius:14px;padding:14px 16px;margin-bottom:16px;"></div>
+      <!-- Кнопка -->
+      <button onclick="goToAI()" style="width:100%;background:linear-gradient(135deg,var(--accent),#5a52cc);border:none;border-radius:13px;padding:14px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:.3px;">Создать заявку для этого специалиста →</button>
+    </div>
+  </div>
+</div>
+
+<!-- УДАЛЕНИЕ АККАУНТА -->
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface);border:1px solid rgba(255,94,94,.3);border-radius:20px;padding:28px;max-width:400px;width:100%;text-align:center;">
+    <div style="font-size:36px;margin-bottom:14px;">⚠️</div>
+    <div style="font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;">Удалить аккаунт?</div>
+    <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Все ваши данные и история заявок будут удалены безвозвратно.</div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;">Введите слово УДАЛИТЬ для подтверждения</label>
+      <input id="deleteConfirmInput" placeholder="УДАЛИТЬ" style="width:100%;background:var(--surface2);border:1.5px solid rgba(255,94,94,.3);border-radius:10px;padding:11px 14px;color:var(--text);font-size:14px;outline:none;text-align:center;font-family:'Geologica',sans-serif;" oninput="checkDeleteConfirm()">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeDeleteModal()" style="flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px;font-size:13px;cursor:pointer;font-family:'Geologica',sans-serif;">Отмена</button>
+      <button id="deleteConfirmBtn" onclick="doDeleteAccount()" disabled style="flex:1;background:rgba(255,94,94,.2);border:1px solid rgba(255,94,94,.3);color:var(--red);border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:not-allowed;font-family:'Geologica',sans-serif;transition:all .2s;">Удалить аккаунт</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

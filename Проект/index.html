@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Брокер — Финансовые задачи решает ИИ</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#08080f;--surface:#111119;--surface2:#1a1a26;--accent:#7c6fff;--gold:#f0c040;--gold2:#ffd760;--text:#eeeef5;--muted:#72728a;--border:rgba(255,255,255,0.07);--green:#3ecf8e;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:"Geologica",sans-serif;min-height:100vh;background-image:radial-gradient(ellipse at 20% 20%,rgba(124,111,255,0.09) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(240,192,64,0.05) 0%,transparent 50%);}
+nav{padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:"Unbounded",sans-serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,#fff 30%,var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-btns{display:flex;gap:10px;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:8px 18px;font-size:13px;cursor:pointer;font-family:"Geologica",sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-outline:hover{border-color:var(--accent);color:var(--text);}
+.btn-solid{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 20px;font-size:13px;font-weight:500;cursor:pointer;font-family:"Geologica",sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;}
+.btn-solid:hover{background:#6558e0;transform:translateY(-1px);}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 40px 60px;}
+.badge{display:inline-flex;align-items:center;gap:7px;background:rgba(124,111,255,.1);border:1px solid rgba(124,111,255,.25);border-radius:20px;padding:6px 16px;font-size:12.5px;color:var(--accent);margin-bottom:28px;}
+.badge::before{content:"";width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+h1{font-family:"Unbounded",sans-serif;font-size:clamp(32px,5.5vw,68px);font-weight:900;line-height:1.1;letter-spacing:-2px;margin-bottom:20px;}
+.gold-text{background:linear-gradient(135deg,var(--accent) 0%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:580px;margin:0 auto 48px;}
+.cta-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:620px;width:100%;margin-bottom:48px;}
+.cta-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:30px 24px;cursor:pointer;transition:all .3s;text-align:center;text-decoration:none;display:block;}
+.cta-card:hover{border-color:var(--accent);background:rgba(124,111,255,.06);transform:translateY(-5px);box-shadow:0 24px 48px rgba(124,111,255,.15);}
+.cta-card.spec:hover{border-color:var(--gold);background:rgba(240,192,64,.04);box-shadow:0 24px 48px rgba(240,192,64,.1);}
+.cta-icon{font-size:42px;margin-bottom:14px;}
+.cta-title{font-family:"Unbounded",sans-serif;font-size:17px;font-weight:700;margin-bottom:8px;}
+.cta-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:18px;}
+.cta-go{display:inline-block;background:var(--accent);color:#fff;border-radius:10px;padding:10px 22px;font-size:12.5px;font-weight:600;font-family:"Unbounded",sans-serif;}
+.cta-card.spec .cta-go{background:var(--gold);color:#08080f;}
+section{padding:80px 40px;max-width:1100px;margin:0 auto;}
+.s-label{font-family:"Unbounded",sans-serif;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;text-align:center;margin-bottom:12px;}
+.s-title{font-family:"Unbounded",sans-serif;font-size:clamp(22px,3vw,36px);font-weight:700;text-align:center;margin-bottom:44px;letter-spacing:-1px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.grid-4-m{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;}
+.svc{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px 18px;transition:all .25s;}
+.svc:hover{border-color:rgba(124,111,255,.3);transform:translateY(-2px);}
+.svc-icon{font-size:28px;margin-bottom:12px;}
+.svc-name{font-size:14px;font-weight:600;margin-bottom:6px;}
+.svc-desc{font-size:12px;color:var(--muted);line-height:1.55;}
+.step{text-align:center;}
+.step-n{width:44px;height:44px;border-radius:50%;background:rgba(124,111,255,.12);border:1px solid rgba(124,111,255,.25);display:flex;align-items:center;justify-content:center;font-family:"Unbounded",sans-serif;font-size:16px;font-weight:700;color:var(--accent);margin:0 auto 14px;}
+.step-t{font-size:14px;font-weight:600;margin-bottom:7px;}
+.step-d{font-size:12.5px;color:var(--muted);line-height:1.55;}
+.stats-box{background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:44px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;text-align:center;max-width:900px;margin:0 auto;}
+.stat-n{font-family:"Unbounded",sans-serif;font-size:36px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+.stat-l{font-size:13px;color:var(--muted);}
+footer{padding:32px 40px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;font-size:13px;color:var(--muted);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero>*{animation:up .6s ease both;}
+.badge{animation-delay:.0s}.hero h1{animation-delay:.1s}.sub{animation-delay:.2s}.cta-row{animation-delay:.3s}
+
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .hero { padding: 80px 20px 40px; }
+  h1 { font-size: clamp(28px, 8vw, 48px); letter-spacing: -1px; }
+  .sub { font-size: 15px; }
+  .cta-row { grid-template-columns: 1fr; max-width: 360px; gap: 12px; }
+  .cta-card { padding: 22px 18px; }
+  section { padding: 48px 20px; }
+  .grid-4 { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-4-m { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stats-box { grid-template-columns: 1fr 1fr; gap: 20px; padding: 28px 20px; }
+  .stat-n { font-size: 28px; }
+  .s-title { font-size: clamp(18px, 5vw, 28px); }
+  footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px 20px; }
+}
+@media (max-width: 480px) {
+  .grid-4 { grid-template-columns: 1fr; }
+  .stats-box { grid-template-columns: 1fr 1fr; }
+  .nav-btns .btn-outline { display: none; }
+}
+
+/* ═══════════ MOBILE ═══════════ */
+@media (max-width: 900px) {
+  nav { padding: 0 16px; }
+  .hero { padding: 80px 20px 40px; }
+  h1 { font-size: clamp(26px, 7vw, 52px); letter-spacing: -1px; }
+  .sub { font-size: 15px; margin-bottom: 32px; }
+  .cta-row { grid-template-columns: 1fr 1fr; gap: 12px; max-width: 500px; }
+  .cta-card { padding: 20px 16px; }
+  .cta-icon { font-size: 34px; }
+  .cta-title { font-size: 14px; }
+  section { padding: 48px 20px; }
+  .grid-4 { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-4-m { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stats-box { grid-template-columns: 1fr 1fr; gap: 20px; padding: 28px 20px; }
+  .stat-n { font-size: 28px; }
+  .s-title { font-size: clamp(18px, 4.5vw, 28px); }
+}
+@media (max-width: 600px) {
+  .cta-row { grid-template-columns: 1fr; max-width: 340px; }
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+  .nav-btns .btn-outline { display: none; }
+  footer { flex-direction: column; gap: 10px; text-align: center; padding: 20px; }
+}
+@media (max-width: 400px) {
+  h1 { font-size: 22px; letter-spacing: -.5px; }
+  .cta-card { padding: 16px 14px; }
+  .grid-4 { grid-template-columns: 1fr; }
+  .stats-box { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">БРОКЕР</div>
+  <div class="nav-btns">
+    <a href="login.html" class="btn-outline">Войти</a>
+    <a href="login.html" class="btn-solid">Регистрация →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">Работает на ИИ · Бесплатная консультация</div>
+  <h1>Финансовые задачи<br>решает <span class="gold-text">искусственный интеллект</span></h1>
+  <p class="sub">Опишите задачу — ИИ уточнит детали, сформирует техническое задание и подберёт проверенного специалиста</p>
+
+  <div class="cta-row">
+    <a href="login.html" onclick="localStorage.setItem('selectedRole','client')" class="cta-card">
+      <div class="cta-icon">👤</div>
+      <div class="cta-title">Я заказчик</div>
+      <div class="cta-desc">Ищу специалиста для финансовой или юридической задачи</div>
+      <div class="cta-go">Начать →</div>
+    </a>
+    <a href="login.html" onclick="localStorage.setItem('selectedRole','specialist')" class="cta-card spec">
+      <div class="cta-icon">👨‍💼</div>
+      <div class="cta-title">Я исполнитель</div>
+      <div class="cta-desc">Я специалист и хочу получать заявки от клиентов</div>
+      <div class="cta-go">Подключиться →</div>
+    </a>
+  </div>
+</section>
+
+<section>
+  <div class="s-label">Что мы решаем</div>
+  <div class="s-title">Все финансовые и юридические задачи</div>
+  <div class="grid-4">
+    <div class="svc"><div class="svc-icon">💳</div><div class="svc-name">Кредиты и рефинансирование</div><div class="svc-desc">Подбор банка, помощь при отказах, сложные случаи</div></div>
+    <div class="svc"><div class="svc-icon">🏦</div><div class="svc-name">Банкротство физлица</div><div class="svc-desc">Списание долгов, защита имущества, остановка коллекторов</div></div>
+    <div class="svc"><div class="svc-icon">🏠</div><div class="svc-name">Ипотека и страховка</div><div class="svc-desc">Оформление, подбор страховки, рефинансирование</div></div>
+    <div class="svc"><div class="svc-icon">📊</div><div class="svc-name">Налоги и бухгалтерия</div><div class="svc-desc">Декларации, вычеты, ИП и ООО, оптимизация</div></div>
+    <div class="svc"><div class="svc-icon">⚖️</div><div class="svc-name">Юридические вопросы</div><div class="svc-desc">Договоры, претензии, суды, защита прав</div></div>
+    <div class="svc"><div class="svc-icon">🚗</div><div class="svc-name">Автокредит и КАСКО</div><div class="svc-desc">Подбор автокредита, ОСАГО, КАСКО</div></div>
+    <div class="svc"><div class="svc-icon">📋</div><div class="svc-name">Открыть ИП или ООО</div><div class="svc-desc">Регистрация, система налогообложения</div></div>
+    <div class="svc"><div class="svc-icon">🤖</div><div class="svc-name">ИИ-консультация</div><div class="svc-desc">Бесплатный AI отвечает сразу</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="s-label">Процесс</div>
+  <div class="s-title">Как это работает</div>
+  <div class="grid-4-m">
+    <div class="step"><div class="step-n">1</div><div class="step-t">Опишите задачу</div><div class="step-d">ИИ задаёт уточняющие вопросы и формирует чёткое ТЗ</div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-t">Получите цену</div><div class="step-d">ИИ показывает рыночную стоимость услуги</div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-t">Выберите специалиста</div><div class="step-d">Карточки с рейтингом, опытом и отзывами</div></div>
+    <div class="step"><div class="step-n">4</div><div class="step-t">Результат гарантирован</div><div class="step-d">Деньги заморожены до вашего подтверждения</div></div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="stats-box">
+    <div><div class="stat-n">ИИ</div><div class="stat-l">Формирует ТЗ автоматически</div></div>
+    <div><div class="stat-n">8+</div><div class="stat-l">Типов финансовых услуг</div></div>
+    <div><div class="stat-n">🔒</div><div class="stat-l">Задаток под защитой</div></div>
+    <div><div class="stat-n">24/7</div><div class="stat-l">ИИ-ассистент онлайн</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="logo" style="font-size:14px;">БРОКЕР</div>
+  <div>© 2026 Брокер</div>
+  <div style="display:flex;gap:16px;">
+    <a href="#" style="color:var(--muted);text-decoration:none;">Условия</a>
+    <a href="login.html" style="color:var(--accent);text-decoration:none;">Войти</a>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Брокер — Личный кабинет исполнителя</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Geologica:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f0efe9;
+  --dark: #0f0f14;
+  --accent: #1a1a2e;
+  --gold: #c9a84c;
+  --gold2: #e8c96a;
+  --text: #1a1a2e;
+  --muted: #888880;
+  --border: #e2e0d8;
+  --green: #2d7a4f;
+  --red: #c0392b;
+  --orange: #d4820a;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Geologica', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+.nav {
+  background: var(--dark);
+  padding: 0 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px; position: sticky; top: 0; z-index: 100;
+}
+.nav-logo {
+  font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 700;
+  background: linear-gradient(135deg, #fff, var(--gold2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-tabs { display: flex; gap: 4px; }
+.nav-tab {
+  padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .2s; color: rgba(255,255,255,.5);
+  border: none; background: transparent; font-family: 'Geologica', sans-serif;
+}
+.nav-tab:hover { color: rgba(255,255,255,.85); }
+.nav-tab.active { background: rgba(255,255,255,.1); color: #fff; }
+.nav-notif {
+  width: 8px; height: 8px; background: var(--gold2);
+  border-radius: 50%; display: inline-block; margin-left: 6px;
+  animation: pulse 2s infinite;
+}
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 300px 1fr; gap: 0; min-height: calc(100vh - 56px); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--surface); border-right: 1px solid var(--border);
+  padding: 28px 20px;
+}
+
+.profile-card {
+  text-align: center; padding-bottom: 24px;
+  border-bottom: 1px solid var(--border); margin-bottom: 20px;
+}
+.avatar {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #3a3a6e);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; margin: 0 auto 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.12);
+  position: relative;
+}
+.avatar-badge {
+  position: absolute; bottom: 2px; right: 2px;
+  width: 20px; height: 20px; background: #2d7a4f;
+  border-radius: 50%; border: 2px solid #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #fff;
+}
+.spec-name {
+  font-family: 'Unbounded', sans-serif; font-size: 15px; font-weight: 600;
+  margin-bottom: 4px;
+}
+.spec-title { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.rating-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 14px; }
+.stars { color: var(--gold); font-size: 13px; letter-spacing: 1px; }
+.rating-num { font-weight: 600; font-size: 14px; }
+.rating-cnt { font-size: 11px; color: var(--muted); }
+
+.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.stat-box {
+  background: var(--surface2); border-radius: 10px; padding: 10px 6px; text-align: center;
+}
+.stat-num { font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 600; color: var(--accent); }
+.stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+.edit-btn {
+  width: 100%; border: 1px solid var(--border); background: transparent;
+  border-radius: 10px; padding: 9px; font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all .2s; font-family: 'Geologica', sans-serif;
+  color: var(--text);
+}
+.edit-btn:hover { background: var(--surface2); }
+
+/* Sidebar menu */
+.sidebar-menu { display: flex; flex-direction: column; gap: 2px; }
+.menu-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  transition: all .2s; font-size: 13.5px; color: var(--text);
+}
+.menu-item:hover { background: var(--surface2); }
+.menu-item.active { background: var(--accent); color: #fff; }
+.menu-icon { font-size: 16px; width: 22px; text-align: center; }
+.menu-badge {
+  margin-left: auto; background: var(--gold); color: var(--dark);
+  border-radius: 20px; padding: 2px 7px; font-size: 11px; font-weight: 600;
+}
+.menu-item.active .menu-badge { background: rgba(255,255,255,.25); color: #fff; }
+
+/* ── MAIN ── */
+.main { padding: 28px 32px; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* Page header */
+.page-hdr {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.page-title { font-family: 'Unbounded', sans-serif; font-size: 18px; font-weight: 600; }
+.page-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+/* Filter tabs */
+.filter-tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.ftab {
+  padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 500;
+  cursor: pointer; transition: all .2s; border: 1px solid var(--border);
+  background: transparent; font-family: 'Geologica', sans-serif; color: var(--muted);
+}
+.ftab:hover { border-color: var(--accent); color: var(--accent); }
+.ftab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* Order cards */
+.orders { display: flex; flex-direction: column; gap: 12px; }
+
+.order-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px 20px; transition: all .25s;
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.order-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); transform: translateY(-1px); }
+.order-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.order-card.new::before { background: var(--gold); }
+.order-card.inwork::before { background: #3b82f6; }
+.order-card.done::before { background: var(--green); }
+.order-card.declined::before { background: var(--muted); }
+
+.order-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.order-type-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 4px 10px;
+  border-radius: 20px; background: var(--surface2);
+}
+.order-status {
+  font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px;
+}
+.status-new { background: rgba(201,168,76,.15); color: #a07020; }
+.status-inwork { background: rgba(59,130,246,.1); color: #1d4ed8; }
+.status-done { background: rgba(45,122,79,.1); color: var(--green); }
+.status-declined { background: rgba(136,136,128,.1); color: var(--muted); }
+
+.order-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.order-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.order-tag {
+  font-size: 11.5px; color: var(--muted); background: var(--surface2);
+  padding: 3px 9px; border-radius: 6px; display: flex; align-items: center; gap: 4px;
+}
+
+.order-details {
+  background: var(--surface2); border-radius: 10px; padding: 12px 14px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+  font-size: 12px;
+}
+.detail-row { display: flex; flex-direction: column; gap: 2px; }
+.detail-label { color: var(--muted); font-size: 11px; }
+.detail-value { font-weight: 500; color: var(--text); }
+
+.order-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.deposit-amount {
+  font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 600;
+  color: var(--green);
+}
+.deposit-label { font-size: 11px; color: var(--muted); }
+.order-actions { display: flex; gap: 8px; }
+.btn-accept {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 10px; padding: 9px 18px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .2s; font-family: 'Geologica', sans-serif;
+}
+.btn-accept:hover { background: #2a2a4e; transform: translateY(-1px); }
+.btn-decline {
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+  border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .2s; font-family: 'Geologica', sans-serif;
+}
+.btn-decline:hover { border-color: var(--red); color: var(--red); }
+.btn-contact {
+  background: var(--green); color: #fff; border: none;
+  border-radius: 10px; padding: 9px 18px; font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all .2s; font-family: 'Geologica', sans-serif;
+}
+.btn-contact:hover { opacity: .9; }
+
+/* ── PROFILE PAGE ── */
+.profile-edit { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1/-1; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.form-input {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 11px 14px; font-size: 14px;
+  font-family: 'Geologica', sans-serif; color: var(--text); outline: none;
+  transition: border-color .2s; resize: vertical;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-section {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 20px 22px; margin-bottom: 20px;
+}
+.form-section-title {
+  font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 600;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+.price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.save-btn {
+  background: var(--accent); color: #fff; border: none;
+  border-radius: 12px; padding: 13px 28px; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: 'Geologica', sans-serif; transition: all .2s;
+}
+.save-btn:hover { background: #2a2a4e; }
+
+/* Specialization chips */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.chip {
+  padding: 6px 13px; border-radius: 20px; font-size: 12.5px; font-weight: 500;
+  border: 1px solid var(--border); cursor: pointer; transition: all .2s;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Reviews */
+.reviews { display: flex; flex-direction: column; gap: 12px; }
+.review-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px 18px;
+}
+.review-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.reviewer { display: flex; align-items: center; gap: 10px; }
+.reviewer-ava {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.reviewer-name { font-size: 14px; font-weight: 500; }
+.reviewer-date { font-size: 11px; color: var(--muted); }
+.review-stars { color: var(--gold); font-size: 13px; }
+.review-text { font-size: 13.5px; line-height: 1.6; color: var(--text); }
+.review-task { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+/* Earnings */
+.earnings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.earn-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px 18px;
+}
+.earn-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.earn-value { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 600; }
+.earn-value.green { color: var(--green); }
+.earn-value.gold { color: var(--gold); }
+.earn-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--accent); color: #fff;
+  padding: 12px 20px; border-radius: 12px; font-size: 14px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.2); z-index: 1000;
+  transform: translateY(80px); opacity: 0; transition: all .3s ease;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.order-card { animation: fadeIn .4s ease; }
+
+
+@media (max-width: 768px) {
+  .nav { padding: 0 16px; height: 52px; }
+  .nav-tabs { gap: 2px; }
+  .nav-tab { padding: 6px 10px; font-size: 12px; }
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    display: flex; flex-direction: row; flex-wrap: nowrap;
+    overflow-x: auto; padding: 10px 12px; gap: 6px;
+    border-right: none; border-bottom: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .profile-card { display: none; }
+  .menu-item {
+    flex-shrink: 0; white-space: nowrap; padding: 7px 14px;
+    border-radius: 20px; font-size: 12px; gap: 6px;
+  }
+  .menu-badge { font-size: 10px; padding: 1px 5px; }
+  main { padding: 16px; }
+  .page-title { font-size: 16px; }
+  .page-hdr { margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+  .save-btn { padding: 10px 16px; font-size: 11px; }
+  .order-card { border-radius: 14px; }
+  .order-top { padding: 10px 12px; }
+  .order-title { font-size: 13px; }
+  .order-footer { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+  .btn-accept, .btn-decline { padding: 8px 14px; font-size: 12px; }
+  .form-section { padding: 14px; }
+  .profile-edit { grid-template-columns: 1fr !important; }
+  .price-grid { grid-template-columns: 1fr !important; }
+  #priceGrid { grid-template-columns: 1fr !important; }
+  .review-card { padding: 12px; }
+}
+@media (max-width: 480px) {
+  .nav-tab { padding: 5px 8px; font-size: 11px; }
+  .order-actions { width: 100%; justify-content: flex-end; }
+}
+
+/* ═══════════ MOBILE ═══════════ */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar {
+    display: flex; flex-direction: row; overflow-x: auto;
+    padding: 8px 12px; gap: 6px; border-right: none;
+    border-bottom: 1px solid var(--border);
+    -webkit-overflow-scrolling: touch; flex-shrink: 0;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+  .profile-card { display: none; }
+  .menu-item {
+    flex-shrink: 0; white-space: nowrap; padding: 7px 13px;
+    border-radius: 20px; font-size: 12px; min-width: unset;
+  }
+  .menu-badge { font-size: 10px; padding: 1px 5px; }
+  main { padding: 14px; min-height: unset; }
+  .page-hdr { margin-bottom: 14px; }
+  .page-title { font-size: 17px; }
+  .order-card { border-radius: 14px; }
+  .order-top { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+  .order-title { font-size: 13px; }
+  .order-meta { flex-wrap: wrap; gap: 5px; }
+  .order-details { padding: 10px 12px; }
+  .order-footer { padding: 10px 12px; flex-wrap: wrap; gap: 8px; }
+  .order-actions { width: 100%; justify-content: flex-end; }
+  .btn-accept { padding: 9px 16px; font-size: 12px; }
+  .btn-decline { padding: 9px 12px; font-size: 12px; }
+  .filter-tabs { flex-wrap: wrap; gap: 6px; }
+  .ftab { padding: 6px 12px; font-size: 12px; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .price-grid { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 600px) {
+  .nav { padding: 0 12px; height: 50px; }
+  .nav-logo { font-size: 15px; }
+  .nav-tab { padding: 5px 8px; font-size: 11px; }
+  .nav-tabs { gap: 2px; }
+  /* Переключатель роли */
+  .nav .role-switcher button { padding: 4px 10px; font-size: 10.5px; }
+  .order-footer { flex-direction: column; align-items: flex-start; }
+  .order-actions { width: 100%; display: flex; gap: 8px; }
+  .btn-accept, .btn-decline { flex: 1; justify-content: center; }
+  .spec-row { grid-template-columns: 1fr 1fr !important; }
+  .price-grid { grid-template-columns: 1fr !important; }
+  .review-card { padding: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">БРОКЕР</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('cabinet')">Кабинет</button>
+    <button class="nav-tab" onclick="switchTab('public')">👁 Мой профиль</button>
+  </div>
+  <!-- Переключатель роли -->
+  <div style="display:flex;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:3px;gap:2px;">
+    <button id="roleSpecBtn" onclick="setRole('specialist')" style="background:var(--accent);color:#fff;border:none;border-radius:16px;padding:5px 14px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">👨‍💼 Исполнитель</button>
+    <button id="roleClientBtn" onclick="setRole('client')" style="background:transparent;color:rgba(255,255,255,.5);border:none;border-radius:16px;padding:5px 14px;font-size:11.5px;font-weight:500;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;">👤 Заказчик</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="font-size:12px;color:rgba(255,255,255,.5);"><span id="navUserName">...</span> · Исполнитель</div>
+    <button onclick="doLogout()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:'Geologica',sans-serif;transition:all .2s;" onmouseover="this.style.background='rgba(255,94,94,.15)';this.style.color='#ff5e5e'" onmouseout="this.style.background='rgba(255,255,255,.07)';this.style.color='rgba(255,255,255,.6)'">Выйти</button>
+  </div>
+</nav>
+
+<!-- CABINET -->
+<div id="cabinet" class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="profile-card">
+      <div class="avatar" onclick="document.getElementById('photoUpload').click()" title="Нажмите чтобы загрузить фото" style="cursor:pointer;position:relative;">
+        <img id="avatarImg" src="" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:none;">
+        <span id="avatarEmoji" style="font-size:32px;">👨‍💼</span>
+        <div class="avatar-badge">✓</div>
+        <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:var(--gold);color:#0f0f14;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;white-space:nowrap;font-family:'Geologica',sans-serif;">📷 фото</div>
+      </div>
+      <input type="file" id="photoUpload" accept="image/*" style="display:none" onchange="uploadPhoto(this)">
+      <div class="spec-name"><span id="userName">Загрузка...</span></div>
+      <div class="spec-title"><span id="userTitle">Исполнитель</span></div>
+      <div class="rating-row">
+        <div class="stars" id="sidebarStars">☆☆☆☆☆</div>
+        <div class="rating-num" id="sidebarRating">—</div>
+        <div class="rating-cnt" id="sidebarReviewCount">(0 отзывов)</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="statDeals">0</div>
+          <div class="stat-label">Сделок</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statYears">0</div>
+          <div class="stat-label">Лет опыта</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statSuccess">—</div>
+          <div class="stat-label">Успех</div>
+        </div>
+      </div>
+      <button class="edit-btn" onclick="showPage('profile')">✏️ Редактировать профиль</button>
+    </div>
+
+    <div class="sidebar-menu">
+      <div class="menu-item active" onclick="showPage('orders')">
+        <span class="menu-icon">📥</span>
+        Заявки
+        <span class="menu-badge" id="badgeOrders">0</span>
+      </div>
+      <div class="menu-item" onclick="switchTab('public')">
+        <span class="menu-icon">👁</span>
+        Мой профиль
+      </div>
+      <div class="menu-item" onclick="showPage('inwork')">
+        <span class="menu-icon">⚡</span>
+        В работе
+        <span class="menu-badge" style="background:#3b82f6;color:#fff" id="badgeInwork">0</span>
+      </div>
+      <div class="menu-item" onclick="showPage('done')">
+        <span class="menu-icon">✅</span>
+        Закрытые сделки
+      </div>
+      <div class="menu-item" onclick="showPage('earnings')">
+        <span class="menu-icon">💰</span>
+        Заработок
+      </div>
+      <div class="menu-item" onclick="showPage('reviews')">
+        <span class="menu-icon">⭐</span>
+        Отзывы
+      </div>
+      <div class="menu-item" onclick="showPage('profile')">
+        <span class="menu-icon">⚙️</span>
+        Настройки
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ORDERS PAGE -->
+    <div id="page-orders" class="page active">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Входящие заявки <span style="color:var(--gold)" id="ordersCount">0</span></div>
+          <div class="page-sub">Новые заявки от клиентов — примите или отклоните</div>
+        </div>
+      </div>
+
+      <div class="filter-tabs">
+        <button class="ftab active" onclick="filterOrders('all',this)">Все</button>
+        <button class="ftab" onclick="filterOrders('new',this)">Новые</button>
+        <button class="ftab" onclick="filterOrders('credit',this)">💳 Кредит</button>
+        <button class="ftab" onclick="filterOrders('bankrupt',this)">🏦 Банкротство</button>
+        <button class="ftab" onclick="filterOrders('other',this)">Другие</button>
+      </div>
+
+      <div class="orders" id="ordersList">
+        <div id="emptyOrders" style="text-align:center;padding:48px 20px;color:#888880;">
+          <div style="font-size:40px;margin-bottom:14px;">📭</div>
+          <div style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:600;margin-bottom:6px;">Заявок пока нет</div>
+          <div style="font-size:13px;">Новые заявки от клиентов появятся здесь</div>
+        </div>
+        <!-- DEMO hidden -->
+        <div style="display:none">
+        <div class="order-card new" data-type="credit">
+          <div class="order-top">
+            <span class="order-type-badge">💳 Кредит / рефинансирование</span>
+            <span class="order-status status-new">🟡 Новая</span>
+          </div>
+          <div class="order-title">Потребительский кредит наличными</div>
+          <div class="order-meta">
+            <span class="order-tag">📍 Москва</span>
+            <span class="order-tag">⏰ Срочно — сегодня-завтра</span>
+            <span class="order-tag">🕐 10 минут назад</span>
+          </div>
+          <div class="order-details">
+            <div class="detail-row"><span class="detail-label">Сумма кредита</span><span class="detail-value">300 000 — 700 000 ₽</span></div>
+            <div class="detail-row"><span class="detail-label">Банки</span><span class="detail-value">Сбербанк, ВТБ</span></div>
+            <div class="detail-row"><span class="detail-label">Доход</span><span class="detail-value">60 000 — 120 000 ₽/мес</span></div>
+            <div class="detail-row"><span class="detail-label">Занятость</span><span class="detail-value">Официально (2-НДФЛ)</span></div>
+            <div class="detail-row"><span class="detail-label">Кредитная история</span><span class="detail-value">Хорошая</span></div>
+            <div class="detail-row"><span class="detail-label">Отказы</span><span class="detail-value">1–2 отказа</span></div>
+            <div class="detail-row"><span class="detail-label">Залог</span><span class="detail-value">Нет</span></div>
+            <div class="detail-row"><span class="detail-label">Бюджет клиента</span><span class="detail-value">3 000 — 10 000 ₽</span></div>
+          </div>
+          <div class="order-footer">
+            <div>
+              <div class="deposit-amount">5 000 ₽</div>
+              <div class="deposit-label">задаток заморожен</div>
+            </div>
+            <div class="order-actions">
+              <button class="btn-decline" onclick="declineOrder(this)">Отклонить</button>
+              <button class="btn-accept" onclick="acceptOrder(this)">✓ Принять заявку</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDER 2 -->
+        <div class="order-card new" data-type="bankrupt">
+          <div class="order-top">
+            <span class="order-type-badge">🏦 Банкротство физлица</span>
+            <span class="order-status status-new">🟡 Новая</span>
+          </div>
+          <div class="order-title">Списание долгов — банкротство под ключ</div>
+          <div class="order-meta">
+            <span class="order-tag">📍 Санкт-Петербург</span>
+            <span class="order-tag">📅 В течение месяца</span>
+            <span class="order-tag">🕐 35 минут назад</span>
+          </div>
+          <div class="order-details">
+            <div class="detail-row"><span class="detail-label">Сумма долгов</span><span class="detail-value">Свыше 1 500 000 ₽</span></div>
+            <div class="detail-row"><span class="detail-label">Кредиторы</span><span class="detail-value">Сбербанк, МФО, ВТБ</span></div>
+            <div class="detail-row"><span class="detail-label">Последний платёж</span><span class="detail-value">Более 6 мес. назад</span></div>
+            <div class="detail-row"><span class="detail-label">Имущество</span><span class="detail-value">Квартира, автомобиль</span></div>
+            <div class="detail-row"><span class="detail-label">Ипотека</span><span class="detail-value">Нет</span></div>
+            <div class="detail-row"><span class="detail-label">Приставы</span><span class="detail-value">Да, звонят коллекторы</span></div>
+            <div class="detail-row"><span class="detail-label">Бюджет клиента</span><span class="detail-value">Свыше 30 000 ₽</span></div>
+            <div class="detail-row"><span class="detail-label">Контакт</span><span class="detail-value">Игорь, +7 921 ••• ••••</span></div>
+          </div>
+          <div class="order-footer">
+            <div>
+              <div class="deposit-amount">15 000 ₽</div>
+              <div class="deposit-label">задаток заморожен</div>
+            </div>
+            <div class="order-actions">
+              <button class="btn-decline" onclick="declineOrder(this)">Отклонить</button>
+              <button class="btn-accept" onclick="acceptOrder(this)">✓ Принять заявку</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDER 3 -->
+        <div class="order-card new" data-type="credit">
+          <div class="order-top">
+            <span class="order-type-badge">🏠 Страховка по ипотеке</span>
+            <span class="order-status status-new">🟡 Новая</span>
+          </div>
+          <div class="order-title">Переоформить страховку ипотеки дешевле</div>
+          <div class="order-meta">
+            <span class="order-tag">📍 Москва</span>
+            <span class="order-tag">📅 В течение недели</span>
+            <span class="order-tag">🕐 1 час назад</span>
+          </div>
+          <div class="order-details">
+            <div class="detail-row"><span class="detail-label">Банк</span><span class="detail-value">Сбербанк</span></div>
+            <div class="detail-row"><span class="detail-label">Остаток долга</span><span class="detail-value">3 000 000 — 7 000 000 ₽</span></div>
+            <div class="detail-row"><span class="detail-label">Тип страховки</span><span class="detail-value">Комплексная</span></div>
+            <div class="detail-row"><span class="detail-label">Год постройки</span><span class="detail-value">После 2010</span></div>
+            <div class="detail-row"><span class="detail-label">Бюджет клиента</span><span class="detail-value">До 3 000 ₽</span></div>
+            <div class="detail-row"><span class="detail-label">Контакт</span><span class="detail-value">Анна, +7 916 ••• ••••</span></div>
+          </div>
+          <div class="order-footer">
+            <div>
+              <div class="deposit-amount">2 000 ₽</div>
+              <div class="deposit-label">задаток заморожен</div>
+            </div>
+            <div class="order-actions">
+              <button class="btn-decline" onclick="declineOrder(this)">Отклонить</button>
+              <button class="btn-accept" onclick="acceptOrder(this)">✓ Принять заявку</button>
+            </div>
+          </div>
+        </div>
+
+        </div><!-- end demo -->
+      </div>
+    </div>
+
+    <!-- IN WORK PAGE -->
+    <div id="page-inwork" class="page">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">В работе <span style="color:#3b82f6" id="inworkCount">0</span></div>
+          <div class="page-sub">Принятые заявки — свяжитесь с клиентом</div>
+        </div>
+      </div>
+      <div class="orders">
+        <div class="order-card inwork">
+          <div class="order-top">
+            <span class="order-type-badge">💳 Рефинансирование</span>
+            <span class="order-status status-inwork">🔵 В работе</span>
+          </div>
+          <div class="order-title">Рефинансирование 3 кредитов</div>
+          <div class="order-meta">
+            <span class="order-tag">📍 Москва</span>
+            <span class="order-tag">🕐 Принято вчера</span>
+          </div>
+          <div class="order-details">
+            <div class="detail-row"><span class="detail-label">Сумма</span><span class="detail-value">700 000 — 2 000 000 ₽</span></div>
+            <div class="detail-row"><span class="detail-label">Банки</span><span class="detail-value">Альфа, Тинькофф, МТС</span></div>
+            <div class="detail-row"><span class="detail-label">КИ</span><span class="detail-value">Небольшие просрочки</span></div>
+            <div class="detail-row"><span class="detail-label">Телефон</span><span class="detail-value">+7 903 447 21 88</span></div>
+          </div>
+          <div class="order-footer">
+            <div>
+              <div class="deposit-amount">8 000 ₽</div>
+              <div class="deposit-label">задаток заморожен</div>
+            </div>
+            <div class="order-actions">
+              <button class="btn-contact" onclick="showToast('Открываю контакт клиента...')">📞 Связаться</button>
+              <button class="btn-accept" onclick="showToast('Сделка закрыта! Задаток разморожен.')">✓ Закрыть сделку</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONE PAGE -->
+    <div id="page-done" class="page">
+      <div class="page-hdr">
+        <div><div class="page-title">Закрытые сделки</div>
+        <div class="page-sub">История успешно завершённых заявок</div></div>
+      </div>
+      <div class="orders">
+        <div class="order-card done">
+          <div class="order-top">
+            <span class="order-type-badge">💳 Кредит</span>
+            <span class="order-status status-done">✅ Закрыта</span>
+          </div>
+          <div class="order-title">Потребительский кредит 500 000 ₽ — одобрен</div>
+          <div class="order-meta">
+            <span class="order-tag">📍 Москва</span>
+            <span class="order-tag">🕐 3 дня назад</span>
+            <span class="order-tag">⭐ Оценка: 5.0</span>
+          </div>
+          <div class="order-footer">
+            <div><div class="deposit-amount">7 000 ₽</div><div class="deposit-label">получено</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EARNINGS PAGE -->
+    <div id="page-earnings" class="page">
+      <div class="page-hdr">
+        <div><div class="page-title">Заработок</div>
+        <div class="page-sub">Статистика доходов на платформе</div></div>
+      </div>
+      <div class="earnings-grid">
+        <div class="earn-card">
+          <div class="earn-label">Этот месяц</div>
+          <div class="earn-value green">47 500 ₽</div>
+          <div class="earn-sub">↑ +12% к прошлому</div>
+        </div>
+        <div class="earn-card">
+          <div class="earn-label">В ожидании</div>
+          <div class="earn-value gold">30 000 ₽</div>
+          <div class="earn-sub">2 сделки в работе</div>
+        </div>
+        <div class="earn-card">
+          <div class="earn-label">Всего за год</div>
+          <div class="earn-value">312 000 ₽</div>
+          <div class="earn-sub">47 сделок</div>
+        </div>
+        <div class="earn-card">
+          <div class="earn-label">Средний чек</div>
+          <div class="earn-value">6 638 ₽</div>
+          <div class="earn-sub">за сделку</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS PAGE -->
+    <div id="page-reviews" class="page">
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Отзывы клиентов</div>
+          <div class="page-sub" id="reviewsSub">Загрузка...</div>
+        </div>
+      </div>
+
+      <!-- Сводка рейтинга -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;display:flex;gap:28px;align-items:center;">
+        <div style="text-align:center;flex-shrink:0;">
+          <div style="font-family:'Unbounded',sans-serif;font-size:48px;font-weight:700;color:var(--text);line-height:1;" id="bigRating">—</div>
+          <div style="color:var(--gold);font-size:20px;margin:6px 0;" id="bigStars">☆☆☆☆☆</div>
+          <div style="font-size:12px;color:var(--muted);" id="bigCount">нет отзывов</div>
+        </div>
+        <div style="flex:1;">
+          <div id="starBars">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12.5px;">
+              <span style="color:var(--gold);width:16px;">5★</span>
+              <div style="flex:1;height:6px;background:var(--surface2);border-radius:3px;"><div id="bar5" style="height:100%;background:var(--gold);border-radius:3px;width:0%;transition:width .5s;"></div></div>
+              <span style="color:var(--muted);width:20px;text-align:right;" id="cnt5">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12.5px;">
+              <span style="color:var(--gold);width:16px;">4★</span>
+              <div style="flex:1;height:6px;background:var(--surface2);border-radius:3px;"><div id="bar4" style="height:100%;background:var(--gold);border-radius:3px;width:0%;transition:width .5s;"></div></div>
+              <span style="color:var(--muted);width:20px;text-align:right;" id="cnt4">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12.5px;">
+              <span style="color:var(--gold);width:16px;">3★</span>
+              <div style="flex:1;height:6px;background:var(--surface2);border-radius:3px;"><div id="bar3" style="height:100%;background:var(--orange);border-radius:3px;width:0%;transition:width .5s;"></div></div>
+              <span style="color:var(--muted);width:20px;text-align:right;" id="cnt3">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12.5px;">
+              <span style="color:var(--gold);width:16px;">2★</span>
+              <div style="flex:1;height:6px;background:var(--surface2);border-radius:3px;"><div id="bar2" style="height:100%;background:var(--red);border-radius:3px;width:0%;transition:width .5s;"></div></div>
+              <span style="color:var(--muted);width:20px;text-align:right;" id="cnt2">0</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;">
+              <span style="color:var(--gold);width:16px;">1★</span>
+              <div style="flex:1;height:6px;background:var(--surface2);border-radius:3px;"><div id="bar1" style="height:100%;background:var(--red);border-radius:3px;width:0%;transition:width .5s;"></div></div>
+              <span style="color:var(--muted);width:20px;text-align:right;" id="cnt1">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Список отзывов -->
+      <div id="reviewsList">
+        <div style="text-align:center;padding:48px 20px;color:var(--muted);">
+          <div style="font-size:40px;margin-bottom:14px;">⭐</div>
+          <div style="font-family:'Unbounded',sans-serif;font-size:14px;font-weight:600;margin-bottom:6px;">Отзывов пока нет</div>
+          <div style="font-size:13px;">Отзывы появятся после закрытых сделок</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE EDIT PAGE -->
+    <div id="page-profile" class="page">
+
+      <!-- Шапка -->
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Мой профиль</div>
+          <div class="page-sub">Заполните данные — клиенты увидят это при выборе специалиста</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button onclick="switchTab('public')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:'Geologica',sans-serif;color:var(--muted);transition:all .2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">👁 Как видят клиенты</button>
+          <button class="save-btn" id="saveProfileBtn" onclick="saveProfile()">💾 Сохранить</button>
+        </div>
+      </div>
+
+      <!-- Статус заполненности -->
+      <div id="profileStatus" style="background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:12px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#a07020;display:flex;align-items:center;gap:10px;">
+        <span>⚠️</span>
+        <span>Профиль не заполнен — клиенты не смогут найти вас. Заполните основные данные и нажмите Сохранить.</span>
+      </div>
+
+      <!-- Основная информация -->
+      <div class="form-section">
+        <div class="form-section-title">Основная информация</div>
+        <div class="profile-edit">
+          <div class="form-group">
+            <label class="form-label">ФИО</label>
+            <input class="form-input" id="pName" placeholder="Иванов Алексей Иванович">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Город</label>
+            <input class="form-input" id="pCity" placeholder="Москва">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Опыт работы</label>
+            <input class="form-input" id="pExp" placeholder="Например: 5 лет">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Телефон (виден клиенту после принятия заявки)</label>
+            <input class="form-input" id="pPhone" placeholder="+7 900 000 00 00" type="tel">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telegram (для связи)</label>
+            <input class="form-input" id="pTelegram" placeholder="@username">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email для уведомлений</label>
+            <input class="form-input" id="pEmail" placeholder="email@mail.ru" type="email">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">О себе (видят клиенты — опишите опыт и преимущества)</label>
+            <textarea class="form-input" id="pAbout" rows="4" placeholder="Кредитный брокер с опытом работы. Помогаю получить кредит даже при плохой КИ и неофициальном доходе..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Специализация -->
+      <div class="form-section">
+        <div class="form-section-title">Специализация (выберите услуги которые оказываете)</div>
+        <div class="chips" id="specChips">
+          <div class="chip" onclick="toggleChip(this)" data-val="💳 Кредиты" data-price="price1">💳 Кредиты</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="🔄 Рефинансирование" data-price="price2">🔄 Рефинансирование</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="🏦 Банкротство" data-price="price4">🏦 Банкротство</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="🏠 Ипотека" data-price="price3">🏠 Ипотека</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="🚗 Автокредит" data-price="price7">🚗 Автокредит</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="📊 Налоги" data-price="price5">📊 Налоги</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="⚖️ Юридические" data-price="price5">⚖️ Юридические</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="📋 ИП / ООО" data-price="price6">📋 ИП / ООО</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="🏠 Страховка" data-price="price8">🏠 Страховка</div>
+          <div class="chip" onclick="toggleChip(this)" data-val="🚗 КАСКО / ОСАГО" data-price="price9">🚗 КАСКО / ОСАГО</div>
+        </div>
+      </div>
+
+      <!-- Стоимость услуг -->
+      <div class="form-section">
+        <div class="form-section-title">Стоимость услуг (видят клиенты)</div>
+        <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:#a07020;">
+          💡 Укажите стоимость в рублях, процентах от суммы или комбинированно. Например: <em>от 3 000 ₽</em> или <em>1–2% от суммы</em> или <em>от 5 000 ₽ + 1% от суммы</em>
+        </div>
+        <div id="priceGrid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+          <div class="form-group" id="pg-price1" style="display:none">
+            <label class="form-label">💳 Потребительский кредит</label>
+            <input class="form-input" id="price1" placeholder="от 3 000 ₽ или 1% от суммы">
+          </div>
+          <div class="form-group" id="pg-price2" style="display:none">
+            <label class="form-label">🔄 Рефинансирование</label>
+            <input class="form-input" id="price2" placeholder="от 5 000 ₽ или 1–2% от суммы">
+          </div>
+          <div class="form-group" id="pg-price3" style="display:none">
+            <label class="form-label">🏠 Ипотека</label>
+            <input class="form-input" id="price3" placeholder="от 10 000 ₽ или 0.5–1% от суммы">
+          </div>
+          <div class="form-group" id="pg-price4" style="display:none">
+            <label class="form-label">🏦 Банкротство</label>
+            <input class="form-input" id="price4" placeholder="от 80 000 ₽ под ключ">
+          </div>
+          <div class="form-group" id="pg-price5" style="display:none">
+            <label class="form-label">⚖️ Налоги / Юридические</label>
+            <input class="form-input" id="price5" placeholder="от 3 000 ₽ за консультацию">
+          </div>
+          <div class="form-group" id="pg-price6" style="display:none">
+            <label class="form-label">📋 ИП / ООО</label>
+            <input class="form-input" id="price6" placeholder="от 2 000 ₽ за регистрацию">
+          </div>
+          <div class="form-group" id="pg-price7" style="display:none">
+            <label class="form-label">🚗 Автокредит</label>
+            <input class="form-input" id="price7" placeholder="от 3 000 ₽ или 1% от суммы">
+          </div>
+          <div class="form-group" id="pg-price8" style="display:none">
+            <label class="form-label">🏠 Страховка по ипотеке</label>
+            <input class="form-input" id="price8" placeholder="от 1 500 ₽ за подбор">
+          </div>
+          <div class="form-group" id="pg-price9" style="display:none">
+            <label class="form-label">🚗 КАСКО / ОСАГО</label>
+            <input class="form-input" id="price9" placeholder="от 1 000 ₽ за подбор">
+          </div>
+        </div>
+        <div id="noPriceHint" style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">
+          ☝️ Выберите специализацию выше — появятся поля для указания стоимости
+        </div>
+      </div>
+
+      <!-- Документы и верификация -->
+      <div class="form-section">
+        <div class="form-section-title">Верификация и документы</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div style="background:var(--surface2);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:24px;">📄</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;">Паспорт</div>
+              <div style="font-size:11.5px;color:var(--muted);">Для верификации аккаунта</div>
+            </div>
+            <span style="background:rgba(136,136,128,.1);color:var(--muted);padding:4px 10px;border-radius:20px;font-size:11px;">Не загружен</span>
+          </div>
+          <div style="background:var(--surface2);border-radius:12px;padding:16px;display:flex;align-items:center;gap:12px;">
+            <div style="font-size:24px;">🏆</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;">Диплом / сертификат</div>
+              <div style="font-size:11.5px;color:var(--muted);">Подтверждение квалификации</div>
+            </div>
+            <span style="background:rgba(136,136,128,.1);color:var(--muted);padding:4px 10px;border-radius:20px;font-size:11px;">Не загружен</span>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:var(--muted);">📎 Загрузка документов — в следующей версии. Для верификации напишите в поддержку.</div>
+      </div>
+
+      <!-- Безопасность -->
+      <div class="form-section">
+        <div class="form-section-title">Безопасность аккаунта</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-size:13.5px;font-weight:500;">Изменить пароль</div>
+              <div style="font-size:12px;color:var(--muted);">Рекомендуем менять пароль раз в 3 месяца</div>
+            </div>
+            <button onclick="showToast('Письмо для смены пароля отправлено на email')" style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:8px 14px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;color:var(--text);transition:all .2s;">Изменить</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-size:13.5px;font-weight:500;">Email аккаунта</div>
+              <div style="font-size:12px;color:var(--muted);" id="accountEmail">—</div>
+            </div>
+            <span style="background:rgba(45,122,79,.1);color:var(--green);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">✓ Подтверждён</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+            <div>
+              <div style="font-size:13.5px;font-weight:500;color:var(--red);">Выйти из аккаунта</div>
+              <div style="font-size:12px;color:var(--muted);">Завершить текущую сессию</div>
+            </div>
+            <button onclick="doLogout()" style="background:rgba(192,57,43,.08);border:1px solid rgba(192,57,43,.2);border-radius:9px;padding:8px 14px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;color:var(--red);transition:all .2s;">Выйти →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Удаление аккаунта -->
+      <div style="border:1px solid rgba(192,57,43,.15);border-radius:14px;padding:18px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <div>
+          <div style="font-size:13.5px;font-weight:600;color:var(--red);margin-bottom:4px;">Удалить аккаунт</div>
+          <div style="font-size:12px;color:var(--muted);">Все данные будут удалены безвозвратно. Это действие нельзя отменить.</div>
+        </div>
+        <button onclick="window.confirmDeleteAccount()" style="background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);border-radius:9px;padding:8px 14px;font-size:12.5px;cursor:pointer;font-family:'Geologica',sans-serif;color:var(--red);font-weight:600;white-space:nowrap;">🗑 Удалить</button>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- PUBLIC PROFILE -->
+<div id="public" style="display:none; padding:40px 32px; max-width:860px; margin:0 auto;">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:24px;cursor:pointer;color:var(--muted);font-size:13px;" onclick="switchTab('cabinet')">← Вернуться в кабинет</div>
+
+  <!-- Шапка профиля -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:16px;">
+    <div style="display:flex;gap:20px;align-items:flex-start;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#3a3a6e);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;overflow:hidden;" id="pubAvatar">
+        <img id="pubAvatarImg" src="" style="width:100%;height:100%;object-fit:cover;display:none;" alt="">
+        <span id="pubAvatarEmoji">👨‍💼</span>
+      </div>
+      <div style="flex:1">
+        <div style="font-family:'Unbounded',sans-serif;font-size:20px;font-weight:600;margin-bottom:4px;" id="pubName">—</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;" id="pubMeta">Исполнитель</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <span style="color:var(--gold);font-size:13px;" id="pubStars">☆☆☆☆☆</span>
+          <span style="font-weight:600;" id="pubRating">Нет отзывов</span>
+          <span id="pubVerified" style="display:none;background:rgba(45,122,79,.1);color:var(--green);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">✓ Проверен</span>
+        </div>
+        <div style="font-size:13.5px;line-height:1.7;color:var(--text);" id="pubAbout" >—</div>
+      </div>
+      <button style="background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px 22px;font-family:'Geologica',sans-serif;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;" onclick="showToast('Переход к оформлению заявки...')">Выбрать специалиста</button>
+    </div>
+  </div>
+
+  <!-- Контакты -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:16px;display:flex;gap:24px;flex-wrap:wrap;">
+    <div id="pubPhone" style="display:none;font-size:13px;"><span style="color:var(--muted);">📞 Телефон: </span><span style="font-weight:500;" id="pubPhoneVal">—</span></div>
+    <div id="pubTg" style="display:none;font-size:13px;"><span style="color:var(--muted);">✈️ Telegram: </span><span style="font-weight:500;" id="pubTgVal">—</span></div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px;">Контакты видны только после принятия заявки</div>
+  </div>
+
+  <!-- Специализация и цены -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;">
+      <div style="font-family:'Unbounded',sans-serif;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Специализация</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;" id="pubSpecs">
+        <span style="color:var(--muted);font-size:13px;">Не указана</span>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;">
+      <div style="font-family:'Unbounded',sans-serif;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Стоимость услуг</div>
+      <div style="display:flex;flex-direction:column;gap:7px;font-size:13px;" id="pubPrices">
+        <span style="color:var(--muted);">Не указана</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Отзывы -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;">
+    <div style="font-family:'Unbounded',sans-serif;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">Отзывы клиентов</div>
+    <div style="text-align:center;padding:24px;color:var(--muted);font-size:13px;">
+      <div style="font-size:28px;margin-bottom:8px;">⭐</div>
+      Отзывы появятся после первых закрытых сделок
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  const page = document.getElementById('page-' + name);
+  if (page) {
+    page.classList.add('active');
+    page.style.display = 'block';
+    page.style.animation = 'fadeIn .3s ease';
+  }
+  // Подсвечиваем активный пункт меню
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  // Ищем пункт меню по onclick
+  document.querySelectorAll('.menu-item').forEach(m => {
+    if (m.getAttribute('onclick') && m.getAttribute('onclick').includes("'" + name + "'")) {
+      m.classList.add('active');
+    }
+  });
+}
+
+function switchTab(tab) {
+  document.getElementById('cabinet').style.display = tab==='cabinet' ? 'grid' : 'none';
+  document.getElementById('public').style.display = tab==='public' ? 'block' : 'none';
+  document.querySelectorAll('.nav-tab').forEach((t,i) => {
+    t.classList.toggle('active', (tab==='cabinet'&&i===0)||(tab==='public'&&i===1));
+  });
+  if (tab === 'public') updatePublicProfile();
+}
+
+function updatePublicProfile() {
+  // Синхронизируем аватар из сайдбара в публичный профиль
+  const sideImg = document.getElementById('avatarImg');
+  const pubImg = document.getElementById('pubAvatarImg');
+  const pubEmoji = document.getElementById('pubAvatarEmoji');
+  if (sideImg && sideImg.style.display !== 'none' && sideImg.src && pubImg) {
+    pubImg.src = sideImg.src;
+    pubImg.style.display = 'block';
+    if (pubEmoji) pubEmoji.style.display = 'none';
+  }
+
+  // Имя
+  const name = document.getElementById('pName')?.value || document.getElementById('userName')?.textContent || '—';
+  const city = document.getElementById('pCity')?.value || '';
+  const exp  = document.getElementById('pExp')?.value  || '';
+  const about = document.getElementById('pAbout')?.value || '—';
+  const phone = document.getElementById('pPhone')?.value || '';
+  const tg    = document.getElementById('pTelegram')?.value || '';
+
+  const pubName = document.getElementById('pubName');
+  if (pubName) pubName.textContent = name;
+
+  const pubMeta = document.getElementById('pubMeta');
+  if (pubMeta) {
+    let parts = ['Исполнитель'];
+    if (city) parts.push(city);
+    if (exp)  parts.push(exp + ' опыта');
+    pubMeta.textContent = parts.join(' · ');
+  }
+
+  const pubAbout = document.getElementById('pubAbout');
+  if (pubAbout) pubAbout.textContent = about !== '—' && about ? about : 'Описание не заполнено';
+
+  // Контакты
+  if (phone) {
+    document.getElementById('pubPhone').style.display = 'block';
+    document.getElementById('pubPhoneVal').textContent = phone;
+  }
+  if (tg) {
+    document.getElementById('pubTg').style.display = 'block';
+    document.getElementById('pubTgVal').textContent = tg;
+  }
+
+  // Специализация
+  const specs = Array.from(document.querySelectorAll('#specChips .chip.sel')).map(c => c.dataset.val || c.textContent);
+  const pubSpecs = document.getElementById('pubSpecs');
+  if (pubSpecs) {
+    if (specs.length) {
+      pubSpecs.innerHTML = specs.map(s =>
+        '<span style="background:var(--surface2);padding:6px 12px;border-radius:20px;font-size:12.5px;">' + s + '</span>'
+      ).join('');
+    } else {
+      pubSpecs.innerHTML = '<span style="color:var(--muted);font-size:13px;">Не указана</span>';
+    }
+  }
+
+  // Вилка цен
+  const prices = [
+    {label: '💳 Потребительский', id: 'price1'},
+    {label: '🔄 Рефинансирование', id: 'price2'},
+    {label: '🏠 Ипотека', id: 'price3'},
+    {label: '🏦 Банкротство', id: 'price4'},
+    {label: '⚖️ Юридические', id: 'price5'},
+    {label: '📋 ИП / ООО', id: 'price6'},
+    {label: '🚗 Автокредит', id: 'price7'},
+    {label: '🏠 Страховка', id: 'price8'},
+    {label: '🚗 КАСКО / ОСАГО', id: 'price9'},
+  ];
+  const pubPrices = document.getElementById('pubPrices');
+  if (pubPrices) {
+    const filled = prices.filter(p => document.getElementById(p.id)?.value);
+    if (filled.length) {
+      pubPrices.innerHTML = filled.map(p =>
+        '<div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">' + p.label + '</span><span style="font-weight:500;">' + document.getElementById(p.id).value + '</span></div>'
+      ).join('');
+    } else {
+      pubPrices.innerHTML = '<span style="color:var(--muted);">Не указана</span>';
+    }
+  }
+}
+
+function acceptOrder(btn) {
+  const card = btn.closest('.order-card');
+  card.querySelector('.order-status').className = 'order-status status-inwork';
+  card.querySelector('.order-status').textContent = '🔵 Принята';
+  card.className = 'order-card inwork';
+  btn.closest('.order-actions').innerHTML = '<button class="btn-contact">📞 Связаться с клиентом</button>';
+  showToast('Заявка принята! Свяжитесь с клиентом.');
+}
+
+function declineOrder(btn) {
+  const card = btn.closest('.order-card');
+  card.style.opacity = '0.4';
+  card.style.pointerEvents = 'none';
+  showToast('Заявка отклонена');
+}
+
+function filterOrders(type, btn) {
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.order-card').forEach(card => {
+    if (type === 'all') { card.style.display = ''; return; }
+    if (type === 'new') { card.style.display = card.classList.contains('new') ? '' : 'none'; return; }
+    card.style.display = card.dataset.type === type ? '' : 'none';
+  });
+}
+
+function toggleChip(el) {
+  el.classList.toggle('sel');
+  updatePriceFields();
+}
+
+function updatePriceFields() {
+  const selectedPrices = new Set();
+  document.querySelectorAll('#specChips .chip.sel').forEach(chip => {
+    const priceId = chip.dataset.price;
+    if (priceId) selectedPrices.add(priceId);
+  });
+
+  let anyVisible = false;
+  ['price1','price2','price3','price4','price5','price6','price7','price8','price9'].forEach(id => {
+    const pg = document.getElementById('pg-' + id);
+    if (pg) {
+      const show = selectedPrices.has(id);
+      pg.style.display = show ? 'flex' : 'none';
+      pg.style.flexDirection = show ? 'column' : '';
+      if (show) anyVisible = true;
+    }
+  });
+
+  const hint = document.getElementById('noPriceHint');
+  if (hint) hint.style.display = anyVisible ? 'none' : 'block';
+}
+
+
+// ══ SUPABASE — загрузка данных пользователя ══
+const SUPABASE_URL = 'https://tdwcldsyxihudfsfhafe.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__KeTQuWq4DZdkpd-npZpjw_T7fbCR_p';
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data: { user } } = await sb.auth.getUser();
+
+    if (!user) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // Подтягиваем данные профиля
+    const meta = user.user_metadata || {};
+
+    // Загружаем профиль из таблицы (безопасно)
+    let profileData = null;
+    try {
+      const res = await sb.from('profiles').select('full_name, phone, contact_email, avatar_url').eq('id', user.id).maybeSingle();
+      if (!res.error) profileData = res.data;
+    } catch(e) { /* профиля ещё нет — нормально */ }
+
+    // Имя: сначала из profiles, потом из metadata, потом из email
+    const name = (profileData && profileData.full_name)
+      || (meta && meta.name)
+      || (user.email ? user.email.split('@')[0] : 'Исполнитель');
+    const firstName = name.split(' ')[0];
+
+    // Вставляем имя везде
+    document.querySelectorAll('#userName').forEach(el => el.textContent = name);
+    const elNav = document.getElementById('navUserName');
+    if (elNav) elNav.textContent = firstName || name;
+    const elTitle = document.getElementById('userTitle');
+    if (elTitle) elTitle.textContent = 'Исполнитель';
+
+    // Автозаполняем поля формы
+    const pNameEl = document.getElementById('pName');
+    if (pNameEl && !pNameEl.value) pNameEl.value = (profileData && profileData.full_name) || (meta && meta.name) || '';
+    const pEmailEl = document.getElementById('pEmail');
+    if (pEmailEl && !pEmailEl.value) pEmailEl.value = (profileData && profileData.contact_email) || user.email || '';
+    const pPhoneEl = document.getElementById('pPhone');
+    if (pPhoneEl && !pPhoneEl.value) pPhoneEl.value = (profileData && profileData.phone) || (meta && meta.phone) || '';
+
+    // Фото
+    if (profileData && profileData.avatar_url) {
+      const img = document.getElementById('avatarImg');
+      const emoji = document.getElementById('avatarEmoji');
+      if (img) {
+        img.src = profileData.avatar_url;
+        img.style.display = 'block';
+        img.onerror = function() { this.style.display='none'; if(emoji) emoji.style.display='block'; };
+      }
+      if (emoji) emoji.style.display = 'none';
+    }
+
+    // Обнуляем счётчики
+    ['badgeOrders','badgeInwork','ordersCount','inworkCount'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '0';
+    });
+    const deals = document.getElementById('statDeals');
+    if (deals) deals.textContent = '0';
+    const years = document.getElementById('statYears');
+    if (years) years.textContent = '0';
+    const success = document.getElementById('statSuccess');
+    if (success) success.textContent = '—';
+
+    // Выход из аккаунта
+window.confirmDeleteAccount = function() {
+  const modal = document.getElementById('deleteModal');
+  modal.style.display = 'flex';
+  document.getElementById('deleteConfirmInput').value = '';
+  document.getElementById('deleteConfirmBtn').disabled = true;
+  document.getElementById('deleteConfirmBtn').style.cursor = 'not-allowed';
+  document.getElementById('deleteConfirmBtn').style.background = 'rgba(192,57,43,.3)';
+}
+
+window.closeDeleteModal = function() {
+  document.getElementById('deleteModal').style.display = 'none';
+}
+
+window.checkDeleteConfirm = function() {
+  const val = document.getElementById('deleteConfirmInput').value;
+  const btn = document.getElementById('deleteConfirmBtn');
+  const ok = val === 'УДАЛИТЬ';
+  btn.disabled = !ok;
+  btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+  btn.style.background = ok ? 'rgba(192,57,43,.8)' : 'rgba(192,57,43,.3)';
+  btn.style.color = ok ? '#fff' : '#ff6b6b';
+}
+
+window.doDeleteAccount = async function() {
+  const btn = document.getElementById('deleteConfirmBtn');
+  btn.textContent = 'Удаляем...';
+  btn.disabled = true;
+
+  try {
+    const sb = window._sb;
+    const userId = window._userId;
+    console.log('Удаление аккаунта:', userId);
+
+    if (!sb || !userId) {
+      throw new Error('Нет подключения к базе данных');
+    }
+
+    // Удаляем данные из таблиц
+    await sb.from('profiles').delete().eq('id', userId);
+    await sb.from('users').delete().eq('id', userId);
+    await sb.from('orders').delete().eq('client_id', userId);
+
+    // Вызываем функцию удаления из auth
+    const { error: rpcError } = await sb.rpc('delete_user_account');
+    if (rpcError) console.warn('RPC предупреждение:', rpcError.message);
+
+    // Fallback: меняем пароль чтобы заблокировать доступ
+    const randomPass = Math.random().toString(36) + Math.random().toString(36) + '!A1';
+    const { error: passError } = await sb.auth.updateUser({ password: randomPass });
+    if (passError) console.warn('Смена пароля:', passError.message);
+
+    // Выходим
+    await sb.auth.signOut();
+
+    window.closeDeleteModal();
+    window.location.href = 'index.html?deleted=1';
+
+  } catch(e) {
+    console.error('Ошибка удаления:', e);
+    btn.textContent = 'Удалить аккаунт';
+    btn.disabled = false;
+    alert('Ошибка: ' + e.message);
+  }
+}
+
+window.doLogout = async () => {
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+    };
+
+    // Показываем email аккаунта
+    const emailEl = document.getElementById('accountEmail');
+    if (emailEl && user.email) emailEl.textContent = user.email;
+
+    // Загружаем сохранённый профиль
+    await loadProfile(sb, user.id);
+
+    // Загружаем отзывы
+    await loadReviews(sb, user.id);
+
+    // Загружаем заказы
+    await loadOrders(sb);
+
+    // Сохраняем sb глобально
+    window._sb = sb;
+    window._userId = user.id;
+
+  } catch(e) {
+    console.log('Auth error:', e);
+  }
+});
+
+// Загрузка профиля из Supabase
+async function loadProfile(sb, userId) {
+  try {
+    const { data } = await sb.from('profiles').select('*').eq('id', userId).single();
+    if (!data) return;
+
+    const fields = {
+      pName: data.full_name, pCity: data.city, pExp: data.experience,
+      pPhone: data.phone, pTelegram: data.telegram, pEmail: data.contact_email,
+      pAbout: data.about, price1: data.price1, price2: data.price2,
+      price3: data.price3, price4: data.price4, price5: data.price5, price6: data.price6
+    };
+
+    Object.entries(fields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    });
+
+    // Специализация
+    if (data.specializations) {
+      const specs = JSON.parse(data.specializations || '[]');
+      document.querySelectorAll('#specChips .chip').forEach(chip => {
+        if (specs.includes(chip.dataset.val)) chip.classList.add('sel');
+      });
+      updatePriceFields();
+    }
+
+    // Убираем предупреждение если профиль заполнен
+    if (data.full_name) {
+      const status = document.getElementById('profileStatus');
+      if (status) {
+        status.style.background = 'rgba(45,122,79,.08)';
+        status.style.borderColor = 'rgba(45,122,79,.2)';
+        status.style.color = 'var(--green)';
+        status.innerHTML = '<span>✅</span><span>Профиль заполнен — клиенты могут найти вас на платформе</span>';
+      }
+    }
+  } catch(e) { console.log('loadProfile error:', e); }
+}
+
+// Сохранение профиля в Supabase
+async function saveProfile() {
+  const btn = document.getElementById('saveProfileBtn');
+  btn.textContent = '⌛ Сохраняем...';
+  btn.disabled = true;
+
+  try {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+
+    const specs = Array.from(document.querySelectorAll('#specChips .chip.sel'))
+      .map(c => c.dataset.val);
+
+    const profile = {
+      id: user.id,
+      full_name: document.getElementById('pName')?.value || '',
+      city: document.getElementById('pCity')?.value || '',
+      experience: document.getElementById('pExp')?.value || '',
+      phone: document.getElementById('pPhone')?.value || '',
+      telegram: document.getElementById('pTelegram')?.value || '',
+      contact_email: document.getElementById('pEmail')?.value || '',
+      about: document.getElementById('pAbout')?.value || '',
+      price1: document.getElementById('price1')?.value || '',
+      price2: document.getElementById('price2')?.value || '',
+      price3: document.getElementById('price3')?.value || '',
+      price4: document.getElementById('price4')?.value || '',
+      price5: document.getElementById('price5')?.value || '',
+      price6: document.getElementById('price6')?.value || '',
+      price7: document.getElementById('price7')?.value || '', // Автокредит
+      price8: document.getElementById('price8')?.value || '',
+      price9: document.getElementById('price9')?.value || '',
+      specializations: JSON.stringify(specs),
+      updated_at: new Date().toISOString()
+    };
+
+    const { error } = await sb.from('profiles').upsert(profile);
+
+    if (error) {
+      showToast('❌ Ошибка сохранения: ' + error.message);
+    } else {
+      showToast('✅ Профиль сохранён!');
+      // Обновляем имя в сайдбаре
+      if (profile.full_name) {
+        const elName = document.getElementById('userName');
+        if (elName) elName.textContent = profile.full_name;
+        const elNav = document.getElementById('navUserName');
+        if (elNav) elNav.textContent = profile.full_name.split(' ')[0];
+      }
+      // Статус
+      const status = document.getElementById('profileStatus');
+      if (status) {
+        status.style.background = 'rgba(45,122,79,.08)';
+        status.style.borderColor = 'rgba(45,122,79,.2)';
+        status.style.color = 'var(--green)';
+        status.innerHTML = '<span>✅</span><span>Профиль заполнен — клиенты могут найти вас на платформе</span>';
+      }
+    }
+  } catch(e) {
+    showToast('❌ Ошибка подключения');
+  }
+
+  btn.textContent = '💾 Сохранить';
+  btn.disabled = false;
+}
+
+// ══ ФОТО ══
+async function uploadPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  // Показываем превью сразу
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    // Обновляем в сайдбаре
+    const img = document.getElementById('avatarImg');
+    const emoji = document.getElementById('avatarEmoji');
+    if (img) { img.src = e.target.result; img.style.display = 'block'; }
+    if (emoji) emoji.style.display = 'none';
+    // Обновляем в публичном профиле
+    const pubImg = document.getElementById('pubAvatarImg');
+    const pubEmoji = document.getElementById('pubAvatarEmoji');
+    if (pubImg) { pubImg.src = e.target.result; pubImg.style.display = 'block'; }
+    if (pubEmoji) pubEmoji.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+
+  // Сохраняем в Supabase Storage
+  try {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return;
+
+    const ext = file.name.split('.').pop();
+    const path = user.id + '/avatar.' + ext;
+
+    const { error } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+    if (!error) {
+      const { data: urlData } = sb.storage.from('avatars').getPublicUrl(path);
+      const publicUrl = urlData.publicUrl;
+      // Сначала пробуем update, если нет записи - upsert
+      const { error: updateErr } = await sb.from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+      if (updateErr) {
+        await sb.from('profiles').upsert({ id: user.id, avatar_url: publicUrl });
+      }
+      showToast('✅ Фото загружено!');
+      console.log('Avatar URL saved:', publicUrl);
+    } else {
+      console.error('Storage upload error:', error);
+      showToast('❌ Ошибка загрузки: ' + error.message);
+    }
+  } catch(e) {
+    console.error('uploadPhoto exception:', e);
+    showToast('❌ Ошибка: ' + e.message);
+  }
+}
+
+// ══ ОТЗЫВЫ ══
+async function loadReviews(sb, userId) {
+  try {
+    const { data: reviews, error } = await sb
+      .from('reviews')
+      .select('*')
+      .eq('specialist_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error || !reviews || reviews.length === 0) {
+      updateReviewsSummary([], userId);
+      return;
+    }
+
+    updateReviewsSummary(reviews, userId);
+    renderReviewCards(reviews);
+  } catch(e) {
+    console.log('loadReviews error:', e);
+  }
+}
+
+function updateReviewsSummary(reviews, userId) {
+  const total = reviews.length;
+  const avg = total ? (reviews.reduce((s, r) => s + r.rating, 0) / total).toFixed(1) : null;
+
+  // Сайдбар
+  const sidebarRating = document.getElementById('sidebarRating');
+  const sidebarStars = document.getElementById('sidebarStars');
+  const sidebarCount = document.getElementById('sidebarReviewCount');
+  if (sidebarRating) sidebarRating.textContent = avg || '—';
+  if (sidebarStars) sidebarStars.textContent = avg ? starsStr(parseFloat(avg)) : '☆☆☆☆☆';
+  if (sidebarCount) sidebarCount.textContent = '(' + total + ' отзывов)';
+
+  // Страница отзывов
+  const sub = document.getElementById('reviewsSub');
+  if (sub) sub.textContent = avg ? (starsStr(parseFloat(avg)) + ' ' + avg + ' · ' + total + ' отзывов') : 'Отзывов пока нет';
+
+  const bigRating = document.getElementById('bigRating');
+  const bigStars = document.getElementById('bigStars');
+  const bigCount = document.getElementById('bigCount');
+  if (bigRating) bigRating.textContent = avg || '—';
+  if (bigStars) bigStars.textContent = avg ? starsStr(parseFloat(avg)) : '☆☆☆☆☆';
+  if (bigCount) bigCount.textContent = total ? total + ' отзывов' : 'нет отзывов';
+
+  // Полосы по звёздам
+  [1,2,3,4,5].forEach(s => {
+    const cnt = reviews.filter(r => r.rating === s).length;
+    const pct = total ? Math.round(cnt / total * 100) : 0;
+    const bar = document.getElementById('bar' + s);
+    const cntEl = document.getElementById('cnt' + s);
+    if (bar) bar.style.width = pct + '%';
+    if (cntEl) cntEl.textContent = cnt;
+  });
+
+  // Обновляем pubRating в публичном профиле
+  const pubRating = document.getElementById('pubRating');
+  if (pubRating) pubRating.textContent = avg ? (avg + ' (' + total + ' отзывов)') : 'Нет отзывов';
+  const pubStars = document.getElementById('pubStars');
+  if (pubStars) pubStars.textContent = avg ? starsStr(parseFloat(avg)) : '☆☆☆☆☆';
+}
+
+function starsStr(rating) {
+  const full = Math.round(rating);
+  return '★'.repeat(full) + '☆'.repeat(5 - full);
+}
+
+function renderReviewCards(reviews) {
+  var list = document.getElementById('reviewsList');
+  if (!list || !reviews.length) return;
+
+  var html = '';
+  for (var i = 0; i < reviews.length; i++) {
+    var r = reviews[i];
+    var date = new Date(r.created_at).toLocaleDateString('ru-RU', {day:'numeric',month:'long',year:'numeric'});
+    var stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+    var initial = (r.client_name || 'К')[0].toUpperCase();
+    var taskRow = r.task_type ? '<div class="review-task">Задача: ' + r.task_type + '</div>' : '';
+    html += '<div class="review-card" style="margin-bottom:12px;">' +
+      '<div class="review-top">' +
+        '<div class="reviewer">' +
+          '<div class="reviewer-ava" style="background:linear-gradient(135deg,var(--accent),#3a3a6e);color:#fff;font-family:Unbounded,sans-serif;font-size:14px;">' + initial + '</div>' +
+          '<div>' +
+            '<div class="reviewer-name">' + (r.client_name || 'Клиент') + '</div>' +
+            '<div class="reviewer-date">' + date + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="review-stars" style="color:var(--gold);">' + stars + '</div>' +
+      '</div>' +
+      '<div class="review-text">' + (r.comment || '') + '</div>' +
+      taskRow +
+    '</div>';
+  }
+  list.innerHTML = html;
+}
+
+// ══ ЗАКАЗЫ ══
+async function loadOrders(sb) {
+  try {
+    const { data: orders, error } = await sb
+      .from('orders')
+      .select('*')
+      .in('status', ['new', 'inwork'])
+      .order('created_at', { ascending: false });
+
+    if (error || !orders || orders.length === 0) {
+      updateOrderBadges(0, 0);
+      return;
+    }
+
+    updateOrderBadges(orders.length, 0);
+    renderOrders(orders);
+  } catch(e) { console.log('loadOrders error:', e); }
+}
+
+function updateOrderBadges(newCount, inworkCount) {
+  ['badgeOrders','ordersCount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = newCount;
+  });
+  ['badgeInwork','inworkCount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = inworkCount;
+  });
+}
+
+function renderOrders(orders) {
+  const list = document.getElementById('ordersList');
+  if (!list) return;
+  const empty = document.getElementById('emptyOrders');
+  if (empty) empty.style.display = 'none';
+
+  orders.forEach((order, i) => {
+    let tz = {};
+    try { tz = JSON.parse(order.tz_data || '{}'); } catch(e) {}
+
+    const date = new Date(order.created_at).toLocaleDateString('ru-RU', {day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+
+    const card = document.createElement('div');
+    card.className = 'order-card new';
+    card.dataset.type = 'credit';
+    card.style.animation = 'fadeIn .4s ease ' + (i*0.08) + 's both';
+
+    // Строим строки ТЗ
+    const tzLabels = {
+      'тип_задачи':'Тип задачи','сумма':'Сумма','банки':'Банки',
+      'занятость':'Занятость','доход':'Доход','кредитная_история':'КИ',
+      'дедлайн':'Дедлайн','прочее':'Доп. инфо'
+    };
+    let tzRows = '';
+    Object.entries(tz).forEach(([k,v]) => {
+      if (tzLabels[k] && v) {
+        tzRows += '<div class="detail-row"><span class="detail-label">' + tzLabels[k] + '</span><span class="detail-value">' + v + '</span></div>';
+      }
+    });
+    if (!tzRows) tzRows = '<div class="detail-row"><span class="detail-label">Email клиента</span><span class="detail-value">' + (order.client_email || '—') + '</span></div>';
+
+    card.innerHTML =
+      '<div class="order-top">' +
+        '<span class="order-type-badge">💼 ' + (order.task_type || 'Заявка') + '</span>' +
+        '<span class="order-status status-new">🟡 Новая</span>' +
+      '</div>' +
+      '<div class="order-title">' + (order.task_type || 'Новая заявка от клиента') + '</div>' +
+      '<div class="order-meta">' +
+        '<span class="order-tag">🕐 ' + date + '</span>' +
+        '<span class="order-tag">📧 ' + (order.client_email || 'Анонимно') + '</span>' +
+      '</div>' +
+      '<div class="order-details">' + tzRows + '</div>' +
+      '<div class="order-footer">' +
+        '<div><div class="deposit-amount">Задаток</div><div class="deposit-label">ожидает оплаты</div></div>' +
+        '<div class="order-actions">' +
+          '<button class="btn-decline" onclick="declineOrder(this)">Отклонить</button>' +
+          '<button class="btn-accept" onclick="handleAcceptOrder(event)" data-oid="' + order.id + '">✓ Принять заявку</button>' +
+        '</div>' +
+      '</div>';
+
+    list.appendChild(card);
+  });
+}
+
+function handleAcceptOrder(e) {
+  acceptOrderDB(e.currentTarget, e.currentTarget.dataset.oid);
+}
+
+async function acceptOrderDB(btn, orderId) {
+  const card = btn.closest('.order-card');
+
+  // 1. Получаем данные заявки и обновляем статус
+  let clientId = null;
+  let clientEmail = '';
+
+  try {
+    if (window._sb && orderId) {
+      const { data: od } = await window._sb.from('orders')
+        .select('client_id, client_email')
+        .eq('id', orderId)
+        .single();
+      if (od) {
+        clientId = od.client_id;
+        clientEmail = od.client_email || '';
+      }
+      await window._sb.from('orders')
+        .update({ status: 'inwork', specialist_id: window._userId })
+        .eq('id', orderId);
+    }
+  } catch(e) { console.log('acceptOrder error:', e); }
+
+  // 2. Обновляем статус на карточке
+  const statusEl = card.querySelector('.order-status');
+  if (statusEl) { statusEl.className = 'order-status status-inwork'; statusEl.textContent = '🔵 Принята'; }
+  card.className = 'order-card inwork';
+
+  // 3. Загружаем контакты клиента из нескольких источников
+  let clientPhone = '';
+  let clientName = '';
+  // clientEmail уже объявлен выше
+  let clientTelegram = '';
+
+  if (window._sb && clientId) {
+    try {
+      // Из client_settings
+      const { data: cs } = await window._sb.from('client_settings')
+        .select('full_name, phone').eq('id', clientId).maybeSingle();
+      if (cs) { clientPhone = cs.phone || ''; clientName = cs.full_name || ''; }
+    } catch(e) {}
+
+    if (!clientPhone) {
+      try {
+        // Из users
+        const { data: u } = await window._sb.from('users')
+          .select('name, phone').eq('id', clientId).maybeSingle();
+        if (u) { clientPhone = u.phone || ''; clientName = clientName || u.name || ''; }
+      } catch(e) {}
+    }
+  }
+
+  // 4. Показываем контакты
+  const actionsEl = btn.closest('.order-actions');
+  let html = '<div style="background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.2);border-radius:12px;padding:14px 16px;width:100%;">' +
+    '<div style="font-size:11px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">✅ Заявка принята — контакты клиента</div>';
+
+  if (clientName) html += '<div style="font-size:15px;font-weight:600;margin-bottom:10px;">' + clientName + '</div>';
+
+  if (clientPhone) {
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">' +
+      '<a href="tel:' + clientPhone + '" style="background:var(--green);color:#0d0d14;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">📞 ' + clientPhone + '</a>' +
+      '<a href="https://wa.me/' + clientPhone.replace(/[^0-9]/g,'') + '" target="_blank" style="background:rgba(37,211,102,.15);color:#25d366;border:1px solid rgba(37,211,102,.3);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:500;text-decoration:none;">💬 WhatsApp</a>' +
+    '</div>';
+  }
+
+  if (clientEmail) {
+    html += '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:6px 0;">' +
+      '<a href="mailto:' + clientEmail + '" style="color:var(--accent);text-decoration:none;">📧 ' + clientEmail + '</a>' +
+    '</div>';
+  }
+
+  if (!clientPhone && !clientEmail) {
+    html += '<div style="font-size:13px;color:var(--muted);">Клиент ещё не заполнил профиль. Email: ' + (clientEmail || 'не указан') + '</div>';
+  }
+
+  html += '</div>';
+  actionsEl.innerHTML = html;
+
+  showToast('✅ Заявка принята! Контакты клиента открыты.');
+
+  // Уведомление себе (администратору)
+  const taskTitle = card.querySelector('.order-title')?.textContent || 'Новая заявка';
+  const tgText = '✅ <b>Вы приняли заявку!</b>\n\n' +
+    '📋 <b>Задача:</b> ' + taskTitle + '\n' +
+    (clientName ? '👤 <b>Клиент:</b> ' + clientName + '\n' : '') +
+    (clientPhone ? '📞 <b>Телефон:</b> ' + clientPhone + '\n' : '') +
+    '📧 <b>Email:</b> ' + (clientEmail || 'не указан') + '\n' +
+    '\n⏰ ' + new Date().toLocaleString('ru-RU');
+  sendTelegramNotify(tgText, TG_ADMIN_CHAT);
+
+  // Уведомление клиенту если у него есть TG
+  if (clientId && window._sb) {
+    window._sb.from('users').select('telegram,name').eq('id', clientId).maybeSingle()
+      .then(async ({data: u}) => {
+        if (u?.telegram) {
+          const clientChatId = await getTgChatId(u.telegram);
+          if (clientChatId) {
+            const specName = document.getElementById('userName')?.textContent || 'Специалист';
+            const clientMsg = '🎉 <b>Ваша заявка принята!</b>\n\n' +
+              '📋 <b>Задача:</b> ' + taskTitle + '\n' +
+              '👨‍💼 <b>Специалист:</b> ' + specName + '\n' +
+              '\nСпециалист свяжется с вами в ближайшее время.';
+            sendTelegramNotify(clientMsg, clientChatId);
+          }
+        }
+      }).catch(() => {});
+  }
+}
+
+// ══ ПЕРЕКЛЮЧАТЕЛЬ РОЛИ ══
+function setRole(role) {
+  const specBtn = document.getElementById('roleSpecBtn');
+  const clientBtn = document.getElementById('roleClientBtn');
+
+  if (role === 'specialist') {
+    specBtn.style.background = 'var(--accent)';
+    specBtn.style.color = '#fff';
+    clientBtn.style.background = 'transparent';
+    clientBtn.style.color = 'rgba(255,255,255,.5)';
+    // Показываем кабинет исполнителя
+    document.getElementById('cabinet').style.display = 'grid';
+    document.getElementById('public').style.display = 'none';
+    switchTab('cabinet');
+  } else {
+    clientBtn.style.background = 'var(--gold)';
+    clientBtn.style.color = '#0f0f14';
+    specBtn.style.background = 'transparent';
+    specBtn.style.color = 'rgba(255,255,255,.5)';
+    // Переходим в кабинет заказчика
+    window.location.href = 'broker-client.html';
+  }
+  // Сохраняем роль
+  localStorage.setItem('activeRole', role);
+}
+
+// ══ TELEGRAM УВЕДОМЛЕНИЯ ══
+const TG_TOKEN = '8043276755:AAHzTHm_DvNegBXMdqCBgL-q3pgQMtEI11Q';
+const TG_ADMIN_CHAT = '848461640'; // Алексей — всегда получает все уведомления
+
+async function sendTelegramNotify(text, chatId) {
+  const target = chatId || TG_ADMIN_CHAT;
+  try {
+    await fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: target,
+        text: text,
+        parse_mode: 'HTML'
+      })
+    });
+  } catch(e) { console.log('TG notify error:', e); }
+}
+
+// Получаем chat_id пользователя по его username через getUpdates
+async function getTgChatId(username) {
+  try {
+    const clean = username.replace('@','').toLowerCase();
+    const r = await fetch('https://api.telegram.org/bot' + TG_TOKEN + '/getUpdates?limit=100');
+    const data = await r.json();
+    if (!data.ok) return null;
+    for (const upd of data.result) {
+      const msg = upd.message || upd.my_chat_member;
+      if (!msg) continue;
+      const from = msg.from || msg.new_chat_member?.user;
+      if (from && from.username && from.username.toLowerCase() === clean) {
+        return String(from.id);
+      }
+    }
+    return null;
+  } catch(e) { return null; }
+}
+
+// Приветствие новому пользователю
+async function welcomeNewUser(tgUsername, role, name) {
+  if (!tgUsername) return;
+  const chatId = await getTgChatId(tgUsername);
+  if (chatId) {
+    const msg = role === 'specialist'
+      ? '👋 Привет, <b>' + name + '</b>!\n\nВы зарегистрированы как <b>исполнитель</b> на платформе Брокер.\n\n📥 Когда клиент создаст заявку — вы получите уведомление здесь.\n\n🔗 Кабинет: https://mute-glitter-260c.proexpert124124.workers.dev/broker-cabinet.html'
+      : '👋 Привет, <b>' + name + '</b>!\n\nВы зарегистрированы как <b>заказчик</b> на платформе Брокер.\n\n🤖 Создайте заявку и ИИ подберёт специалиста.\n\n🔗 Кабинет: https://mute-glitter-260c.proexpert124124.workers.dev/broker-client.html';
+    await sendTelegramNotify(msg, chatId);
+  } else {
+    // Если chat_id не найден - значит пользователь ещё не писал боту
+    // Сохраняем username в профиле для будущих уведомлений
+    console.log('TG: пользователь', tgUsername, 'ещё не написал боту');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- МОДАЛЬНОЕ ОКНО УДАЛЕНИЯ АККАУНТА -->
+<div id="deleteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1a1a1f;border:1px solid rgba(255,94,94,.3);border-radius:20px;padding:28px;max-width:400px;width:100%;text-align:center;">
+    <div style="font-size:36px;margin-bottom:14px;">⚠️</div>
+    <div style="font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;">Удалить аккаунт?</div>
+    <div style="font-size:13px;color:#888;line-height:1.6;margin-bottom:20px;">Все ваши данные, профиль и история заявок будут удалены безвозвратно. Это действие нельзя отменить.</div>
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;color:#888;display:block;margin-bottom:6px;">Введите слово УДАЛИТЬ для подтверждения</label>
+      <input id="deleteConfirmInput" placeholder="УДАЛИТЬ" style="width:100%;background:#0f0f14;border:1.5px solid rgba(255,94,94,.3);border-radius:10px;padding:11px 14px;color:#fff;font-size:14px;outline:none;text-align:center;font-family:'Geologica',sans-serif;" oninput="checkDeleteConfirm()">
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="closeDeleteModal()" style="flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#aaa;border-radius:10px;padding:12px;font-size:13px;cursor:pointer;font-family:'Geologica',sans-serif;">Отмена</button>
+      <button id="deleteConfirmBtn" onclick="window.doDeleteAccount()" disabled style="flex:1;background:rgba(192,57,43,.3);border:1px solid rgba(192,57,43,.4);color:#ff6b6b;border-radius:10px;padding:12px;font-size:13px;font-weight:600;cursor:not-allowed;font-family:'Geologica',sans-serif;transition:all .2s;">Удалить аккаунт</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
