@@ -77,8 +77,7 @@ def call(method, path, body=None, quiet=False):
         if "ERR_NGROK_3200" in text or "is offline" in text:
             raise SystemExit(
                 f"Адрес {url} есть, но за ним ничего не отвечает — туннель не запущен.\n"
-                "На Маке в Терминале:  ngrok http 3000 --url=" + url.split("//")[-1] + "\n"
-                "и это окно оставить открытым. Проверить, что сам сервис жив: docker start waha"
+                "Проверить существующий мост по tools/messengers/README.md."
             )
         if quiet:
             return {"_error": e.code, "_text": text}
@@ -182,15 +181,15 @@ def cmd_status():
     d = call("GET", f"/api/sessions/{urllib.parse.quote(s)}", quiet=True)
     if d.get("_error") == 404:
         print(f"Сессия «{s}» на сервисе ещё не создана.")
-        print("Создать и войти:  python3 tools/messengers/wa.py вход")
+        print("Восстановить существующую сессию на основном мосте; см. tools/messengers/README.md.")
         return
     status = d.get("status", "?")
     me = d.get("me") or {}
     human = {
         "WORKING": "✅ подключено, чаты читаются",
-        "SCAN_QR_R": "⏳ ждёт привязки телефона — python3 tools/messengers/wa.py вход",
+        "SCAN_QR_R": "⏳ ждёт привязки телефона — восстановить привязку на основном мосте",
         "STARTING": "⏳ запускается, повторите через полминуты",
-        "STOPPED": "⏸ остановлена — python3 tools/messengers/wa.py вход",
+        "STOPPED": "⏸ остановлена — восстановить привязку на основном мосте",
         "FAILED": "❌ упала, нужен перезапуск контейнера на Маке",
     }.get(status, status)
     print(f"Сервис: {url}")
@@ -291,7 +290,7 @@ def cmd_sync(limit=200):
     idx["updated"] = dt.datetime.now().isoformat(timespec="seconds")
     os.makedirs(OUT, exist_ok=True)
     json.dump(idx, open(INDEX, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
-    print(f"\nWhatsApp: выгружено диалогов — {n} → Переписка/whatsapp/")
+    print(f"\nWhatsApp: выгружено диалогов — {n} → .messengers/Переписка/whatsapp/")
     print("Выгрузка локальная; выбирайте только относящиеся к проекту материалы.")
 
 
