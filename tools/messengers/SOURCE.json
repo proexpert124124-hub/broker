@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "source_repository": "proexpert124124-hub/credit-biznes",
+  "source_commit": "3355c2c",
+  "source_files": {
+    "wa.py": "352fbfdc2fd9b5ec41239dd41171857b45948ace1014eeddadc69bb3f45ffa50",
+    "live.py": "ca9bdb20139571b91e7c4349139aebf6bfff86d09a2ca025963f58b063411043",
+    "tg_ws.py": "c087452d257e3301fa883fc28bd43402e4c63b145b93a1bcf854831aabdba04f",
+    "max_vk.py": "02150e4fb76f359dd350301c09e9355e0244b8b187b8d87de8d460fb3325902d",
+    "tg_files.py": "f4f5809a0e15c8fda2f29a9537d92993d60bab47f61ed65b8bbd6d66382885a9",
+    "wa_files.py": "4670bf171d3df3de21099690b23d510af1e78b210f333a4df58b0065c0049491",
+    "max_files.py": "edb4add6b707fa30db858a935671fa21964cdcf8355f3bf06cd8f610283766cc"
+  },
+  "notes": "Portable read clients; shared credentials; original backend retained in credit-biznes."
+}
